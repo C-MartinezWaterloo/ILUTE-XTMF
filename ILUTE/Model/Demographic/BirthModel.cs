@@ -61,6 +61,8 @@ namespace TMG.Ilute.Model.Demographic
 
         private const int MaximumAgeCategoryForBirth = 45;
 
+
+
         private const int AgeOfMaturity = 15;
 
         [SubModelInformation(Required = true, Description = "The repository containing simulated persons.")]
@@ -77,7 +79,7 @@ namespace TMG.Ilute.Model.Demographic
 
         private int FirstYear;
 
-        [RunParameter("Random Seed", 12345u, "The seed to use for the random number generator.")]  // Changes 
+        [RunParameter("Random Seed", 12345u, "The seed to use for the random number generator.")]  
         public uint Seed;
 
         private float[] BirthRateData;
