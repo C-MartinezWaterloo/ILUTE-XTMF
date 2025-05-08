@@ -61,8 +61,6 @@ namespace TMG.Ilute.Model.Demographic
 
         private const int MaximumAgeCategoryForBirth = 45;
 
-
-
         private const int AgeOfMaturity = 15;
 
         [SubModelInformation(Required = true, Description = "The repository containing simulated persons.")]
