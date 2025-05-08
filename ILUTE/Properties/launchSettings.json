@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Profile 1": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Users\\mart2100\\Desktop\\XTMF-Dev\\XTMF.Gui.exe",
+      "nativeDebugging": true
+    }
+  }
+}

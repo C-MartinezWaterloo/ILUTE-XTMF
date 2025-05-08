@@ -1,0 +1,69 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <RootNamespace>TMG.Ilute</RootNamespace>
+    <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
+    <AssemblyTitle>ILUTE</AssemblyTitle>
+    <Company>University of Toronto</Company>
+    <Product>ILUTE</Product>
+    <Copyright>Copyright ©  2025</Copyright>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <BaseOutputPath>..\..\..\XTMF-Dev\Modules</BaseOutputPath>
+	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	  <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+	  <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	  <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <LangVersion>latest</LangVersion>
+	  <Optimize>True</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>True</Optimize>
+    <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="VehicleTransaction\**" />
+    <EmbeddedResource Remove="VehicleTransaction\**" />
+    <None Remove="VehicleTransaction\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Datastructure">
+      <HintPath>..\..\..\XTMF-Dev\Modules\Datastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="TashaInterfaces">
+      <HintPath>..\..\..\XTMF-Dev\Modules\TashaInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="TMG.Emme">
+      <HintPath>..\..\..\XTMF-Dev\Modules\TMG.Emme.dll</HintPath>
+    </Reference>
+    <Reference Include="TMG.Frameworks">
+      <HintPath>..\..\..\XTMF-Dev\Modules\TMG.Frameworks.dll</HintPath>
+    </Reference>
+    <Reference Include="TMG.Functions">
+      <HintPath>..\..\..\XTMF-Dev\Modules\TMG.Functions.dll</HintPath>
+    </Reference>
+    <Reference Include="TMGInterfaces">
+      <HintPath>..\..\..\XTMF-Dev\Modules\TMGInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="XTMFInterfaces">
+      <HintPath>..\..\..\XTMF-Dev\Modules\XTMFInterfaces.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="IluteHPC.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

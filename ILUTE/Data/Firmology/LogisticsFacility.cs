@@ -1,0 +1,57 @@
+﻿/*
+    Copyright 2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of ILUTE, a set of modules for XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TMG.Ilute.Data.Firmology
+{
+    public class LogisticsFacility
+    {
+        /// <summary>
+        /// The establishment that this logistics facility is contained in.
+        /// </summary>
+        public BusinessEstablishment Establishment { get; private set; }
+
+        /// <summary>
+        /// The vehicles owned by this logistics facility
+        /// </summary>
+        public List<Vehicle> Vehicles { get; private set; }
+
+        /// <summary>
+        /// Warehouses controlled by this logistics facility
+        /// </summary>
+        public List<Warehouse> Warehouses { get; private set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<TranshipCentre> TranshipCentres { get; private set; }
+
+        public LogisticsFacility(BusinessEstablishment establishment)
+        {
+            Establishment = establishment;
+            Vehicles = new List<Vehicle>();
+            Warehouses = new List<Warehouse>();
+            TranshipCentres = new List<TranshipCentre>();
+        }
+    }
+}
