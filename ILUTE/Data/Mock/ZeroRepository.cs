@@ -6,6 +6,8 @@ namespace TMG.Ilute.Data.Mock;
 [ModuleInformation(Description = "Always returning 0")]
 public sealed class ZeroRepository : IDataSource<Repository<FloatData>>
 {
+
+    // SYNTAX: Note that => means if someone asks for Loaded it will just return the result of _data is not null
     public bool Loaded => _data is not null;
 
     [RootModule]
@@ -19,7 +21,6 @@ public sealed class ZeroRepository : IDataSource<Repository<FloatData>>
     [SubModelInformation(Required = false, Description = "zone system to use")]
     public IDataSource<IZoneSystem>? ZoneSystem = null!;
 
-
     public string Name { get; set; } = null!;
 
     public float Progress => 0f;
@@ -28,7 +29,6 @@ public sealed class ZeroRepository : IDataSource<Repository<FloatData>>
 
     public Repository<FloatData>? GiveData()
     {
-
         return _data;
     }
 
@@ -36,11 +36,11 @@ public sealed class ZeroRepository : IDataSource<Repository<FloatData>>
     {
         var data = new Repository<FloatData>();
 
+        // SYNTAX: The Repository class is defined in Repository.cs
+
         var zoneSystemToLoad = ZoneSystem ?? Root.ZoneSystem;
 
         var loaded = zoneSystemToLoad.Loaded;
-
- 
 
         if (!loaded)
         {
@@ -55,11 +55,6 @@ public sealed class ZeroRepository : IDataSource<Repository<FloatData>>
         {
             zoneSystemToLoad.UnloadData();
         }
-
-        // a
-
-
-
 
 
         foreach (var index in zoneSystem.ZoneArray.ValidIndexies())
