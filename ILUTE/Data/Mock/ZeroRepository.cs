@@ -11,14 +11,10 @@ public sealed class ZeroRepository : IDataSource<Repository<FloatData>>
     [RootModule]
     public ITravelDemandModel Root = null!;
 
-  
-
-
-
-
-
 
     private Repository<FloatData>? _data;
+
+   // Repository will store, reveive and update data
 
     [SubModelInformation(Required = false, Description = "zone system to use")]
     public IDataSource<IZoneSystem>? ZoneSystem = null!;
