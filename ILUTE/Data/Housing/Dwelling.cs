@@ -55,6 +55,11 @@ namespace TMG.Ilute.Data.Housing
 
         public DwellingType Type { get; internal set; }
 
+        /// <summary>
+        /// The date this dwelling was listed for sale (null if not on market)
+        /// </summary>
+        public Date? ListingDate { get; set; }
+
         public override void BeingRemoved()
         {
             if (Household != null)

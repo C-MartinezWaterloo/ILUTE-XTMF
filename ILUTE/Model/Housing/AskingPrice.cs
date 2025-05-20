@@ -89,6 +89,8 @@ namespace TMG.Ilute.Model.Housing
         public void Execute(int currentYear, int month)
         {
             //TODO: Update all of the monthly rates / data here
+
+
             _landUse = Repository.GetRepository(LandUse);
             _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
             _unemployment = Repository.GetRepository(UnemploymentByZone);
@@ -115,13 +117,35 @@ namespace TMG.Ilute.Model.Housing
             }
         }
 
-        public (float askingPrice, float minimumPrice) GetPrice(Dwelling seller)
+
+
+        public (float askingPrice, float minimumPrice) GetPrice(Dwelling seller, Date currentDate)
         {
-            //TODO: Actually calculate how many months the dwelling has been on the market.
-            const int monthsOnMarket = 0;
+            int monthsOnMarket = 0;
+
+            if (seller.ListingDate.HasValue)
+            {
+                monthsOnMarket = (currentDate.Year - seller.ListingDate.Value.Year) * 12
+                               + (currentDate.Month - seller.ListingDate.Value.Month);
+                monthsOnMarket = Math.Max(0, monthsOnMarket);
+            }
+
             (var askingPrice, var minPrice) = DwellingPrice(seller);
-            return (askingPrice * (float)Math.Pow(ASKING_PRICE_FACTOR_DECREASE, monthsOnMarket), minPrice);
+            float decayedPrice = askingPrice * (float)Math.Pow(ASKING_PRICE_FACTOR_DECREASE, monthsOnMarket);
+
+            return (decayedPrice, minPrice);
         }
+
+
+
+
+
+
+
+        //const int monthsOnMarket = 0;
+         //   (var askingPrice, var minPrice) = DwellingPrice(seller);
+          //  return (askingPrice * (float)Math.Pow(ASKING_PRICE_FACTOR_DECREASE, monthsOnMarket), minPrice);
+        //}
 
         private (float askingPrice, float minimumBid) DwellingPrice(Dwelling seller)
         {
