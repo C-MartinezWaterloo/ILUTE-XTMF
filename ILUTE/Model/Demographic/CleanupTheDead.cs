@@ -58,12 +58,16 @@ namespace TMG.Ilute.Model.Demographic
         {
         }
 
+        // This will get the people that do not survive and remove them from the data
+
         public void Execute(int year)
         {
             var toKill = GetElementsToKill(Repository.GetRepository(Families));
             RemoveFromRepository(toKill.Item2, Repository.GetRepository(Families));
             RemoveFromRepository(toKill.Item1, Repository.GetRepository(Persons));
         }
+
+        // Checks whether a person is living, if not, adds them to a list
 
         private Tuple<HashSet<Person>, HashSet<Family>> GetElementsToKill(Repository<Family> families)
         {

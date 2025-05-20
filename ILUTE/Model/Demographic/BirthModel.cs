@@ -15,6 +15,8 @@
 
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+
+    Updated by Charlie Martinez, May 2025
 */
 using System;
 using System.Collections.Generic;
@@ -41,27 +43,22 @@ namespace TMG.Ilute.Model.Demographic
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-        public List<string> Headers
-        {
-            get
-            {
-                return new List<string>() { "Births" };
-            }
-        }
 
-        public List<float> YearlyResults
-        {
-            get
-            {
-                return new List<float>() { BirthsInLastYear };
-            }
-        }
+        // These define the CSV output for yearly summaries. Only one header/value: total births in the last year.
+
+        public List<string> Headers => new List<string>() { "Births" };
+
+        public List<float> YearlyResults => new List<float>() { BirthsInLastYear };
+
+        // Defining the neccesary variables
 
         private const float ProbabilityOfBabyBeingFemale = 0.51f;
 
         private const int MaximumAgeCategoryForBirth = 45;
 
         private const int AgeOfMaturity = 15;
+
+        // Creating the Repositories to store the data
 
         [SubModelInformation(Required = true, Description = "The repository containing simulated persons.")]
         public IDataSource<Repository<Person>> PersonRepository;
@@ -84,9 +81,14 @@ namespace TMG.Ilute.Model.Demographic
 
         RandomStream RandomGenerator;
 
+        // This is from the IExecuteYearly interface, nothing will happen after the yearly cycle
+
         public void AfterYearlyExecute(int year)
         {
         }
+
+
+       
 
         public void BeforeFirstYear(int firstYear)
         {
