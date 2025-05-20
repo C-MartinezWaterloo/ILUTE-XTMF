@@ -12,7 +12,7 @@ public sealed class ZeroRepository : IDataSource<Repository<FloatData>>
 
     [RootModule]
     public ITravelDemandModel Root = null!;
-
+    
 
     private Repository<FloatData>? _data;
 
