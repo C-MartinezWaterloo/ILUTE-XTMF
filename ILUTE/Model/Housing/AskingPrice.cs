@@ -57,6 +57,8 @@ namespace TMG.Ilute.Model.Housing
         private Dictionary<int, float> _personsPerRoomByZone;
         private CurrencyManager _currencyManager;
 
+        private Date _currentDate;
+
         public string Name { get; set; }
 
         public float Progress => 0f;
@@ -90,7 +92,7 @@ namespace TMG.Ilute.Model.Housing
         {
             //TODO: Update all of the monthly rates / data here
 
-
+            _currentDate = new Date(currentYear, month);
             _landUse = Repository.GetRepository(LandUse);
             _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
             _unemployment = Repository.GetRepository(UnemploymentByZone);
@@ -122,17 +124,17 @@ namespace TMG.Ilute.Model.Housing
         /// Calculates the current asking price and minimum acceptable price for a dwelling,
         /// applying a monthly decay factor based on how long the dwelling has been listed.
         /// </summary>
-       
 
 
-        public (float askingPrice, float minimumPrice) GetPrice(Dwelling seller, Date currentDate)
+
+        public (float askingPrice, float minimumPrice) GetPrice(Dwelling seller)
         {
             int monthsOnMarket = 0;
 
             if (seller.ListingDate.HasValue)
             {
-                monthsOnMarket = (currentDate.Year - seller.ListingDate.Value.Year) * 12
-                               + (currentDate.Month - seller.ListingDate.Value.Month);
+                monthsOnMarket = (_currentDate.Year - seller.ListingDate.Value.Year) * 12
+                               + (_currentDate.Month - seller.ListingDate.Value.Month);
                 monthsOnMarket = Math.Max(0, monthsOnMarket);
             }
 
@@ -141,6 +143,7 @@ namespace TMG.Ilute.Model.Housing
 
             return (decayedPrice, minPrice);
         }
+
 
 
         private (float askingPrice, float minimumBid) DwellingPrice(Dwelling seller)
