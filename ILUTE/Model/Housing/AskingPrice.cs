@@ -118,6 +118,12 @@ namespace TMG.Ilute.Model.Housing
         }
 
 
+        /// <summary>
+        /// Calculates the current asking price and minimum acceptable price for a dwelling,
+        /// applying a monthly decay factor based on how long the dwelling has been listed.
+        /// </summary>
+       
+
 
         public (float askingPrice, float minimumPrice) GetPrice(Dwelling seller, Date currentDate)
         {
@@ -136,16 +142,6 @@ namespace TMG.Ilute.Model.Housing
             return (decayedPrice, minPrice);
         }
 
-
-
-
-
-
-
-        //const int monthsOnMarket = 0;
-         //   (var askingPrice, var minPrice) = DwellingPrice(seller);
-          //  return (askingPrice * (float)Math.Pow(ASKING_PRICE_FACTOR_DECREASE, monthsOnMarket), minPrice);
-        //}
 
         private (float askingPrice, float minimumBid) DwellingPrice(Dwelling seller)
         {
