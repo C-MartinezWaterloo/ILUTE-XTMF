@@ -93,6 +93,8 @@ namespace TMG.Ilute.Model.Housing
         private ConcurrentDictionary<long, Household> _remainingHouseholds = new ConcurrentDictionary<long, Household>();
         private ConcurrentDictionary<long, Dwelling> _remainingDwellings = new ConcurrentDictionary<long, Dwelling>();
 
+        // Exports columns for writing to CSV
+
         public List<string> Headers => new List<string>() { "DwellingsSold", "HouseholdsRemaining", "DwellingsReamining", "AverageSalePrice" };
 
         public List<float> YearlyResults => new List<float>()
@@ -168,11 +170,21 @@ namespace TMG.Ilute.Model.Housing
         private const int ApartmentLow = 3;
         private const int ApartmentHigh = 4;
 
+        // Used to pause the seller-selection logic until buyer-selection is fully completed
+        // Acts like a signal to toher threads: "Buyers are ready, you can continue".
+
         private SemaphoreSlim _buyersReady = new SemaphoreSlim(0);
+
+        // A list of dwellings that will be listed for sale this month.
 
         private List<Dwelling> _monthlyBuyerCurrentDwellings;
 
+        //  Thread-safe collection of housholds that want a larger home
+
         private ConcurrentBag<long> _demandLargerDwelling;
+
+
+        // Returns a list of households who are active buyers this month
 
         protected override List<Household> GetBuyers(Rand rand)
         {
@@ -183,6 +195,8 @@ namespace TMG.Ilute.Model.Housing
                 foreach (var dwelling in Repository.GetRepository(DwellingRepository))
                 {
                     var hhld = dwelling.Household;
+
+                    // check if houshold is valid and an owner
                     if (hhld != null && hhld.Tenure == DwellingUnitTenure.own)
                     {
                         // if this dwelling is not the active dwelling for the household
