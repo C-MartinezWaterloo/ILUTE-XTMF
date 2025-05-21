@@ -309,6 +309,12 @@ namespace TMG.Ilute.Model.Housing
             // sort the candidates into the proper lists
             foreach (var d in candidates)
             {
+                // This sets the listing date when added to market
+                if (d.ListingDate == null)
+                {
+                    d.ListingDate = _currentTime;
+                }
+                
                 (var asking, var min) = AskingPrices.GetPrice(d);
                 ret[ComputeHouseholdCategory(d)].Add(new SellerValue(d, asking, min));
             }
@@ -358,6 +364,8 @@ namespace TMG.Ilute.Model.Housing
             seller.Household = buyer;
             buyer.Dwelling = seller;
             seller.Value = new Money(transactionPrice, _currentTime);
+            // Clearing the listing date when sold
+            seller.ListingDate = null;
         }
 
         [RunParameter("Choice Set Size", 10, "The size of the choice set for the buyer for each dwelling class.")]

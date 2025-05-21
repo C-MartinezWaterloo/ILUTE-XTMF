@@ -65,7 +65,7 @@ namespace TMG.Ilute.Model.Demographic
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
         public void AfterYearlyExecute(int year)
-        {
+        { 
         }
 
         public void BeforeFirstYear(int firstYear)
@@ -111,13 +111,13 @@ namespace TMG.Ilute.Model.Demographic
             {
                 var persons = Repository.GetRepository(PersonRepository);
                 int numberOfDeaths = 0;
-                // first find all persons who will be having a child
+                // first find all persons who will die
                 foreach (var person in persons)
                 {
                     if (person.Age > MaximumAge)
                     {
                         person.Living = false;
-                        numberOfDeaths++;
+                        numberOfDeaths++;  // increment 
                     }
                     else
                     {
