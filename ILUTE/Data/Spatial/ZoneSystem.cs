@@ -62,12 +62,17 @@ namespace TMG.Ilute.Data.Spatial
             internal float X, Y, Area;
         }
 
+        // Loads zone data from CSV and computes the distance matrix.
+
+
         public void LoadData()
         {
             LoadInZones();
-            Distance = CreateDistanceMatrix(X, Y);
+            Distance = CreateDistanceMatrix(X, Y); // Precompute distances
             Loaded = true;
         }
+
+        // This decouples CSV reading from data structuring using a producer-consumer pattern.
 
         private void LoadInZones()
         {
