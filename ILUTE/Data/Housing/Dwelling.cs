@@ -46,6 +46,8 @@ namespace TMG.Ilute.Data.Housing
         /// <summary>
         /// The household the resides in the dwelling
         /// </summary>
+        ///
+
         public Household Household { get; set; }
 
         /// <summary>
