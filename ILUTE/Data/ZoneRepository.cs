@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using TMG.Ilute.Data;
 
 namespace TMG.Ilute.Data
 {
-
-
-    // These zone-level attributes are required for computing the asking price of a dwelling.
-    // They are accessed by AskPrice.cs during price estimation and reflect socioeconomic and market conditions.
-
     public interface IZone
-
     {
         int Id { get; }
         float AvgSellPriceDet { get; }
@@ -26,61 +21,54 @@ namespace TMG.Ilute.Data
         void CalculateOutMigrationRates();
     }
 
-    public class ZoneRepository<T> where T : IZone
+    public class ZoneRepository<T> where T : IndexedObject, IZone
     {
+        private readonly Repository<T> _zones;
 
-        // Dictionary is meant to provide fast access by zone ID
-        private readonly Dictionary<int, T> _zones;
-
-        public ZoneRepository()
+        public ZoneRepository(Repository<T> repository)
         {
-            _zones = new Dictionary<int, T>();
+            _zones = repository;
         }
 
         public void AddZone(T zone)
         {
-            if (_zones.ContainsKey(zone.Id))
-                throw new ArgumentException($"Zone with ID {zone.Id} already exists.");
-
-            _zones[zone.Id] = zone;
+            _zones.AddNew(zone);
         }
 
-        public T GetZoneById(int id)
+        public T GetZoneById(long id)
         {
-            if (_zones.TryGetValue(id, out var zone))
-                return zone;
-
-            throw new KeyNotFoundException($"Zone with ID {id} not found.");
+            return _zones.GetByID(id);
         }
 
-        public bool TryGetZoneById(int id, out T zone)
+        public bool TryGetZoneById(long id, out T zone)
         {
-            return _zones.TryGetValue(id, out zone);
+            return _zones.TryGet(id, out zone);
         }
 
         public IEnumerable<T> GetAllZones()
         {
-            return _zones.Values;
+            return _zones;
         }
 
-        public bool RemoveZone(int id)
+        public bool RemoveZone(long id)
         {
-            return _zones.Remove(id);
+            _zones.Remove(id);
+            return true;
         }
 
         public void Clear()
         {
-            _zones.Clear();
+            _zones.UnloadData();
         }
 
-        public bool ContainsZone(int id)
+        public bool ContainsZone(long id)
         {
-            return _zones.ContainsKey(id);
+            return _zones.TryGet(id, out _);
         }
 
         public void UpdateZones(Date currentDate)
         {
-            foreach (var zone in _zones.Values)
+            foreach (var zone in _zones)
             {
                 zone.UpdateTo(currentDate);
             }
@@ -88,7 +76,7 @@ namespace TMG.Ilute.Data
 
         public void ResetOutMigration()
         {
-            foreach (var zone in _zones.Values)
+            foreach (var zone in _zones)
             {
                 zone.ResetOutMig();
             }
@@ -96,7 +84,7 @@ namespace TMG.Ilute.Data
 
         public void CalculateAllOutMigrationRates()
         {
-            foreach (var zone in _zones.Values)
+            foreach (var zone in _zones)
             {
                 zone.CalculateOutMigrationRates();
             }
