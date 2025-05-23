@@ -44,16 +44,20 @@ namespace TMG.Ilute.Model.Housing
         [SubModelInformation(Required = true, Description = "The average distance to the subway by zone.")]
         public IDataSource<Repository<FloatData>> DistanceToSubwayByZone;
 
+        [SubModelInformation(Required = true, Description = "The average distance to Regional Transit by Zone")]
+        public IDataSource<Repository<FloatData>> DistanceToRegionalTransit;
+
         [SubModelInformation(Required = true, Description = "The unemployment rate by zone.")]
         public IDataSource<Repository<FloatData>> UnemploymentByZone;
 
         [SubModelInformation(Required = true, Description = "The repository of all dwellings.")]
         public IDataSource<Repository<Dwelling>> Dwellings;
 
+
         private Repository<LandUse> _landUse;
         private Repository<FloatData> _distanceToSubway;
+        private Repository<FloatData> _distanceToRegionalTransit;
         private Repository<FloatData> _unemployment;
-
         private Dictionary<int, float> _personsPerRoomByZone;
         private CurrencyManager _currencyManager;
 
@@ -63,7 +67,7 @@ namespace TMG.Ilute.Model.Housing
 
         public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
         public void AfterMonthlyExecute(int currentYear, int month)
         {
@@ -96,13 +100,19 @@ namespace TMG.Ilute.Model.Housing
             _landUse = Repository.GetRepository(LandUse);
             _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
             _unemployment = Repository.GetRepository(UnemploymentByZone);
-            ComputePersonsPerRoomByZone(new Date(currentYear, month));
+            AverageDwellingValueByZone(new Date(currentYear, month));
         }
 
-        private void ComputePersonsPerRoomByZone(Date now)
+
+        /// <summary>
+        /// The code loops over all dwellings and groups them by zone. Computes the average dwelling value per zone
+        /// </summary>
+
+
+        private void AverageDwellingValueByZone(Date now)
         {
             var recordsByZone = new Dictionary<int, int>();
-            foreach(var dwelling in Repository.GetRepository(Dwellings))
+            foreach (var dwelling in Repository.GetRepository(Dwellings))
             {
                 var zone = dwelling.Zone;
                 recordsByZone.TryGetValue(zone, out int previousCount);
@@ -111,7 +121,7 @@ namespace TMG.Ilute.Model.Housing
                 _personsPerRoomByZone[zone] = value + _currencyManager.ConvertToYear(dwelling.Value, now).Amount;
             }
             var temp = _personsPerRoomByZone.ToArray();
-            foreach(var totals in temp)
+            foreach (var totals in temp)
             {
                 var zone = totals.Key;
                 var value = totals.Value;
@@ -148,36 +158,49 @@ namespace TMG.Ilute.Model.Housing
 
         private (float askingPrice, float minimumBid) DwellingPrice(Dwelling seller)
         {
-            var ctZone = seller.Zone;           
-            if(ctZone <= 0)
+            var ctZone = seller.Zone;
+            if (ctZone <= 0)
             {
                 throw new XTMFRuntimeException(this, "Found a dwelling that is not linked to a zone!");
             }
-            var avgDistToSubwayKM = 0.0f;
-            var avgDistToRegionalTransitKM = 0.0f;
+
+            float avgDistToRegionalTransitKM = 0f;
+
+            if (_distanceToRegionalTransit.TryGet(ctZone, out var RTData) && RTData != null)
+            {
+                avgDistToRegionalTransitKM = RTData.Data;
+            }
+
+            float avgDistToSubwayKM = 0f;
+
+            if (_distanceToSubway.TryGet(ctZone, out var subwayData) && subwayData != null)
+            {
+                avgDistToSubwayKM = subwayData.Data;
+            }
+
+
             _personsPerRoomByZone.TryGetValue(ctZone, out var avgPersonsPerRoom);
-            var avgDwellingValue = 0.0f;
             var averageSalePriceForThisType = 0.0f;
-            switch(seller.Type)
+            switch (seller.Type)
             {
                 case Dwelling.DwellingType.Detched:
                     //myZone.AvgSellPriceDet
-                    averageSalePriceForThisType = 0 / 1000;
+                    averageSalePriceForThisType = 300000;
                     break;
                 case Dwelling.DwellingType.SemiDetached:
-                    averageSalePriceForThisType = 0 / 1000;
+                    averageSalePriceForThisType = 270000;
                     break;
                 case Dwelling.DwellingType.ApartmentHigh:
-                    averageSalePriceForThisType = 0 / 1000;
+                    averageSalePriceForThisType = 250000;
                     break;
                 case Dwelling.DwellingType.ApartmentLow:
-                    averageSalePriceForThisType = 0 / 1000;
+                    averageSalePriceForThisType = 220000;
                     break;
                 default:
-                    averageSalePriceForThisType = 0 / 1000;
+                    averageSalePriceForThisType = 240000;
                     break;
             }
-            if(!_landUse.TryGet(ctZone, out var landUse))
+            if (!_landUse.TryGet(ctZone, out var landUse))
             {
                 throw new XTMFRuntimeException(this, $"We were not able to find land use information for the zone {ctZone}");
             }
