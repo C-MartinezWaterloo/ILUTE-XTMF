@@ -31,6 +31,8 @@ using XTMF;
 namespace TMG.Ilute.Model.Housing
 {
     public sealed class AskingPrice : ISelectSaleValue<Dwelling>
+
+        // Injecting the data from other modulus
     {
         [RunParameter("Monthly Time Decay", 0.95, "The decay for the asking price as the house remains on the market.")]
         public double ASKING_PRICE_FACTOR_DECREASE;
