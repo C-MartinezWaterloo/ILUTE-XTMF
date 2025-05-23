@@ -3,7 +3,13 @@ using System.Collections.Generic;
 
 namespace TMG.Ilute.Data
 {
+
+
+    // These zone-level attributes are required for computing the asking price of a dwelling.
+    // They are accessed by AskPrice.cs during price estimation and reflect socioeconomic and market conditions.
+
     public interface IZone
+
     {
         int Id { get; }
         float AvgSellPriceDet { get; }
