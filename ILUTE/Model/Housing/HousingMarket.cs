@@ -151,7 +151,12 @@ namespace TMG.Ilute.Model.Housing
             _currentTime = new Date(currentYear, month);
             // create the random seed for this execution of the housing market and start
             var r = new Rand((uint)(currentYear * RandomSeed + month));
+
+            AskingPrices.Execute(currentYear, month);
+            BidModel.Execute(currentYear, month);
+
             Execute(r, currentYear, month);
+
         }
 
         public void RunFinished(int finalYear)

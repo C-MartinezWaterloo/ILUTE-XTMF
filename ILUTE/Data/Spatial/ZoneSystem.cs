@@ -37,7 +37,6 @@ namespace TMG.Ilute.Data.Spatial
 
         public bool Loaded { get; set; }
         
-
         public string Name { get; set; }
 
         public float Progress => 0f;
