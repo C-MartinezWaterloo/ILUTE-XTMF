@@ -176,7 +176,7 @@ namespace TMG.Ilute.Model.Housing
         private const int ApartmentHigh = 4;
 
         // Used to pause the seller-selection logic until buyer-selection is fully completed
-        // Acts like a signal to toher threads: "Buyers are ready, you can continue".
+        // Acts like a signal to other threads: "Buyers are ready, you can continue".
 
         private SemaphoreSlim _buyersReady = new SemaphoreSlim(0);
 
@@ -254,7 +254,7 @@ namespace TMG.Ilute.Model.Housing
             var headAge = hhld.Families.Max(f => f.Persons.Max(p => p.Age));
             var numbOfJobs = hhld.Families.Sum(f => f.Persons.Count(p => p.Jobs.Any()));
 
-            int demandCounter = 0;
+            int demandCounter = 0; // Determines whether a houshold likely needs a larger dwelling
             double probMoving = RES_MOBILITY_CONSTANT;  // base parameter (M.A. Habib, 2009. pg. 46)
 
             if (jobIncrease)
