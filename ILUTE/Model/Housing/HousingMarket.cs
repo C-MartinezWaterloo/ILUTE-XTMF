@@ -201,7 +201,7 @@ namespace TMG.Ilute.Model.Housing
                 {
                     var hhld = dwelling.Household;
 
-                    // check if houshold is valid and an owner
+                    // check if household is valid and an owner
                     if (hhld != null && hhld.Tenure == DwellingUnitTenure.own)
                     {
                         // if this dwelling is not the active dwelling for the household
@@ -259,6 +259,7 @@ namespace TMG.Ilute.Model.Housing
 
             if (jobIncrease)
             {
+                // increasing the demand counter since there is a higher probability of moving into a larger house
                 demandCounter++;
                 probMoving += rand.InvStdNormalCDF() + INC_NUM_JOBS_ST_DEV + INC_NUM_JOBS;
             }
@@ -302,6 +303,8 @@ namespace TMG.Ilute.Model.Housing
             _buyersReady.Wait();
             Interlocked.MemoryBarrier();
             int length = DwellingCategories * MaxBedrooms;
+
+            // is the main result: a list of lists, where each inner list holds sellers in a specific category (e.g., 2-bedroom rental apartments).
             var ret = new List<List<SellerValue>>(length);
             for (int i = 0; i < length; i++)
             {
