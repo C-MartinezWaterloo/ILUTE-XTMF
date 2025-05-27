@@ -74,6 +74,7 @@ namespace TMG.Ilute.Model.Housing
         #endregion
 
 
+     
         public int InitialAverageSellingPriceDetached;
         public int InitialAverageSellingPriceSemi;
         public int InitialAverageSellingPriceApartmentHigh;
@@ -93,6 +94,13 @@ namespace TMG.Ilute.Model.Housing
         private ConcurrentDictionary<long, Household> _remainingHouseholds = new ConcurrentDictionary<long, Household>();
         private ConcurrentDictionary<long, Dwelling> _remainingDwellings = new ConcurrentDictionary<long, Dwelling>();
 
+
+        // Tracks the number of months that each buyer and seller has been active. The idea is that the buyers and sellers should be removed after 3 unsuccessful attempts.
+
+        private Dictionary<long, int> _buyerDurations;
+        private Dictionary<long, int> _sellerDurations;
+
+
         // Exports columns for writing to CSV
 
         public List<string> Headers => new List<string>() { "DwellingsSold", "HouseholdsRemaining", "DwellingsReamining", "AverageSalePrice" };
@@ -109,6 +117,9 @@ namespace TMG.Ilute.Model.Housing
         {
             BidModel.AfterMonthlyExecute(currentYear, month);
             AskingPrices.AfterMonthlyExecute(currentYear, month);
+            RemoveStaleBuyers();
+            RemoveStaleSellers();
+            PrepareCarryover();
         }
 
         public void AfterYearlyExecute(int currentYear)
@@ -333,6 +344,94 @@ namespace TMG.Ilute.Model.Housing
         {
             return ComputeHouseholdCategory(d.Type, d.Rooms);
         }
+
+        private const int MAX_HOUSEHOLD_DURATION = 3; // in months
+        private const int MAX_DWELLING_DURATION = 3;  // in months
+
+        private List<Household> _buyersToCarry = new();
+        private List<Dwelling> _sellersToCarry = new();
+
+
+        private void RemoveStaleBuyers()
+        {
+            var toRemove = new List<long>();
+
+            foreach (var buyer in _remainingHouseholds.Values)
+            {
+                _buyerDurations.TryGetValue(buyer.Id, out var duration);
+                duration++;
+
+                if (duration >= MAX_HOUSEHOLD_DURATION)
+                {
+                    toRemove.Add(buyer.Id);
+                }
+                else
+                {
+                    _buyerDurations[buyer.Id] = duration;
+                    _buyersToCarry.Add(buyer);
+                }
+            }
+
+            foreach (var id in toRemove)
+            {
+                _remainingHouseholds.TryRemove(id, out _); // thread-safe
+                _buyerDurations.Remove(id);
+            }
+        }
+
+
+        private void RemoveStaleSellers()
+        {
+            var toRemove = new List<long>();
+
+            foreach (var seller in _remainingDwellings.Values)
+            {
+                _sellerDurations.TryGetValue(seller.Id, out var duration);
+                duration++;
+
+                if (duration >= MAX_DWELLING_DURATION)
+                {
+                    toRemove.Add(seller.Id);
+                }
+                else
+                {
+                    _sellerDurations[seller.Id] = duration;
+                    _sellersToCarry.Add(seller);
+                }
+            }
+
+            // Remove after iteration is complete
+            foreach (var id in toRemove)
+            {
+                _remainingDwellings.TryRemove(id, out _); // safer for ConcurrentDictionary
+                _sellerDurations.Remove(id);
+            }
+        }
+
+
+        private void PrepareCarryover()
+        {
+            // In a full implementation, you'd reinsert these into next month's market entry queue
+            foreach (var buyer in _buyersToCarry)
+            {
+                // Add to MonthlyActiveHhldIDs[month + 1] or equivalent (not shown here)
+            }
+            foreach (var seller in _sellersToCarry)
+            {
+                // Add to MonthlyActiveDwellingIDs[month + 1] or equivalent (not shown here)
+            }
+
+            _buyersToCarry.Clear();
+            _sellersToCarry.Clear();
+        }
+
+        private void RegisterActiveAgents(List<Household> buyers, List<Dwelling> sellers)
+        {
+            foreach (var b in buyers) _buyerDurations[b.Id] = 0;
+            foreach (var s in sellers) _sellerDurations[s.Id] = 0;
+        }
+
+
 
         private int ComputeHouseholdCategory(Dwelling.DwellingType dwellingType, int rooms)
         {

@@ -63,13 +63,21 @@ namespace TMG.Ilute.Model.Utilities
              * Repeat until all sellers with bidders are resolved or max iterations
              */
             (var buyers, var sellers) = GetBuyersAndSellers(random);
+
+            // OUTER LIST: Seller Types, i.e Detached, Apartment 
+            // MIDDLE LIST: indivudal sellers of that type
+            // INNER LIST: Bids from buyers for that seller
+
             var choiceSets = BuildChoiceSets(random, buyers, sellers);
+
+            // Iterative Market Clearing Loop
+
             for (int iteration = 0; iteration < MaxIterations; ++iteration)
             {
                 var successes = buyers.Select(buyer => new List<(int typeIndex, int sellerIndex, float ammount)>()).ToArray();
                 try
                 {
-                    // Get all of the best buyers
+                    // Get all of the best buyers by first iterating throug the seller type, i.e. detached, apartment
                     for (int sellerType = 0; sellerType < choiceSets.Count; ++sellerType)
                     {
                         Parallel.For(0, choiceSets[sellerType].Count, (int sellerIndex) =>
