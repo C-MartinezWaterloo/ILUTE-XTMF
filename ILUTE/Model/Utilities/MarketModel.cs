@@ -303,6 +303,7 @@ namespace TMG.Ilute.Model.Utilities
                                         select (buyer, randomSeed: random.Take())).ToList();
             // construct the data structure to store the results into
             var sellersBids = sellers.Select(inner => inner.AsParallel().Select(s => new List<Bid>()).ToList()).ToList();
+
             // we don't need to use a random stream because we should already have all of the cores full. 
             Parallel.For(0, buyersWithRandomSeed.Count, (int buyerIndex) =>
             {
