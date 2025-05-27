@@ -74,23 +74,38 @@ namespace TMG.Ilute.Model.Utilities
 
             for (int iteration = 0; iteration < MaxIterations; ++iteration)
             {
+
+
+                // successes is an array where each element corresponds to a buyer and contains an empty list of potential successful matches.
+                // Each list will hold tuples representing:
+                // (1) the seller's dwelling type index,
+                // (2) the seller's index within that type,
+                // (3) the second-highest bid value (used for resolving tie-breaks during market clearing).
+
+
                 var successes = buyers.Select(buyer => new List<(int typeIndex, int sellerIndex, float ammount)>()).ToArray();
                 try
                 {
-                    // Get all of the best buyers by first iterating throug the seller type, i.e. detached, apartment
+                    // Get all of the best buyers by first iterating through the seller type, i.e. detached, apartment
                     for (int sellerType = 0; sellerType < choiceSets.Count; ++sellerType)
                     {
+                        // For each seller type, iterate through the indivdual sellers of that type in parallel
                         Parallel.For(0, choiceSets[sellerType].Count, (int sellerIndex) =>
                         {
+                            // variable options will determine bids from buyers
                             var options = choiceSets[sellerType][sellerIndex];
                             if (options.Count > 0)
                             {
                                 var bestBid = options[0];
                                 options.RemoveAt(0);
+
+                                // Error case
                                 if (bestBid.BuyerIndex < 0 || bestBid.BuyerIndex > successes.Length)
                                 {
                                     throw new XTMFRuntimeException(this, $"Bad buyer index {bestBid.BuyerIndex}!");
                                 }
+
+
                                 var buyerList = successes[bestBid.BuyerIndex];
                                 lock (buyerList)
                                 {
