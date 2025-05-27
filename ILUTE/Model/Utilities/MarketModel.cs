@@ -92,11 +92,11 @@ namespace TMG.Ilute.Model.Utilities
                         // For each seller type, iterate through the indivdual sellers of that type in parallel
                         Parallel.For(0, choiceSets[sellerType].Count, (int sellerIndex) =>
                         {
-                            // variable options will determine bids from buyers
+                            // variable options will determine bids from buyers. BIDS ARE SORTED FROM HIGHEST -> LOWEST.
                             var options = choiceSets[sellerType][sellerIndex];
                             if (options.Count > 0)
                             {
-                                var bestBid = options[0];
+                                var bestBid = options[0]; // pull the top bid off the list
                                 options.RemoveAt(0);
 
                                 // Error case
