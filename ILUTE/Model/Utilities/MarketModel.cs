@@ -109,7 +109,7 @@ namespace TMG.Ilute.Model.Utilities
                                 var buyerList = successes[bestBid.BuyerIndex];
                                 lock (buyerList)
                                 {
-                                    // The value is the amount the next highest a person would pay.
+                                    // The value is the amount the next highest a person would pay. This comes from the Vickrey auction model that says the value someone needs to win is just $1 more than what the next-highest bidder would have paid.
                                     buyerList.Add((sellerType, sellerIndex, options.Count > 0 ? options[0].Amount : bestBid.Amount));
                                 }
                             }
@@ -291,6 +291,13 @@ namespace TMG.Ilute.Model.Utilities
 
         private List<List<List<Bid>>> BuildChoiceSets(Rand random, List<Buyer> buyers, List<List<SellerValue>> sellers)
         {
+            // <summary>
+            // The following is the general strucutre of the Choice Set
+            // OUTER LIST: Seller Types, i.e Detached, Apartment 
+            // MIDDLE LIST: indivudal sellers of that type
+            // INNER LIST: Bids from buyers for that seller
+
+
             // We make this a list to ensure that we don't end up with race conditions
             var buyersWithRandomSeed = (from buyer in buyers
                                         select (buyer, randomSeed: random.Take())).ToList();
