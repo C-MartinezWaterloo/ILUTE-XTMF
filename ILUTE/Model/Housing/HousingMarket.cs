@@ -115,8 +115,8 @@ namespace TMG.Ilute.Model.Housing
 
         public void AfterMonthlyExecute(int currentYear, int month)
         {
-            BidModel.AfterMonthlyExecute(currentYear, month);
-            AskingPrices.AfterMonthlyExecute(currentYear, month);
+            BidModel.AfterMonthlyExecute(currentYear, month); // Nothing
+            AskingPrices.AfterMonthlyExecute(currentYear, month); // Nothing
             RemoveStaleBuyers();
             RemoveStaleSellers();
             PrepareCarryover();
