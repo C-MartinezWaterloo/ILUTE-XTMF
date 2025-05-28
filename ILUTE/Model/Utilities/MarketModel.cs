@@ -83,7 +83,7 @@ namespace TMG.Ilute.Model.Utilities
                 // (3) the second-highest bid value (used for resolving tie-breaks during market clearing).
 
 
-                var successes = buyers.Select(buyer => new List<(int typeIndex, int sellerIndex, float ammount)>()).ToArray();
+                var successes = buyers.Select(buyer => new List<(int typeIndex, int sellerIndex, float amount)>()).ToArray();
                 try
                 {
                     // Get all of the best buyers by first iterating through the seller type, i.e. detached, apartment
@@ -137,18 +137,18 @@ namespace TMG.Ilute.Model.Utilities
                             break;
                         case 1:
                             // resolve the choice set and clear out the seller from the model
-                            ResolveSale(buyers[buyerIndex], sellers[buyerList[0].typeIndex][buyerList[0].sellerIndex].Unit, buyerList[0].ammount);
+                            ResolveSale(buyers[buyerIndex], sellers[buyerList[0].typeIndex][buyerList[0].sellerIndex].Unit, buyerList[0].amount);
                             choiceSets[buyerList[0].typeIndex][buyerList[0].sellerIndex].Clear();
                             break;
                         default:
                             {
                                 int maxIndex = 0;
-                                float max = buyerList[maxIndex].ammount;
+                                float max = buyerList[maxIndex].amount;
                                 for (int i = 1; i < buyerList.Count; i++)
                                 {
-                                    if (buyerList[i].ammount > max
+                                    if (buyerList[i].amount > max
                                         // we need this condition to resolve ties to avoid having a race condition
-                                        || (buyerList[i].ammount == max && buyerList[i].sellerIndex > buyerList[maxIndex].sellerIndex))
+                                        || (buyerList[i].amount == max && buyerList[i].sellerIndex > buyerList[maxIndex].sellerIndex))
                                     {
                                         maxIndex = i;
                                     }
@@ -199,7 +199,7 @@ namespace TMG.Ilute.Model.Utilities
                                 }
                                 try
                                 {
-                                    amount = buyerList[maxIndex].ammount;
+                                    amount = buyerList[maxIndex].amount;
                                 }
                                 catch
                                 {
@@ -256,7 +256,7 @@ namespace TMG.Ilute.Model.Utilities
             }
         }
 
-        protected abstract void ResolveSale(Buyer buyer, Seller seller, float ammount);
+        protected abstract void ResolveSale(Buyer buyer, Seller seller, float amount);
 
         public struct Bid : IComparable<Bid>
         {
