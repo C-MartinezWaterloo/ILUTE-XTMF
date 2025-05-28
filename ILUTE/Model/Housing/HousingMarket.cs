@@ -478,6 +478,8 @@ namespace TMG.Ilute.Model.Housing
         [RunParameter("Choice Set Size", 10, "The size of the choice set for the buyer for each dwelling class.")]
         public int ChoiceSetSize;
 
+        // constructs a choice set of bids from a pool of sellers for a given buyer
+
         protected override List<List<Bid>> SelectSellers(Rand rand, Household buyer, IReadOnlyList<IReadOnlyList<SellerValue>> sellers)
         {
             //  Creates a List<List<Bid>>
