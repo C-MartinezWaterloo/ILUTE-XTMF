@@ -343,6 +343,7 @@ namespace TMG.Ilute.Model.Utilities
             }
             return sellersBids;
         }
+        // This will essentially be overridden by a differnet version in the housing market model.
 
         protected abstract List<List<Bid>> SelectSellers(Rand rand, Buyer buyer, IReadOnlyList<IReadOnlyList<SellerValue>> sellers);
 
