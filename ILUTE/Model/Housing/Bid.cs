@@ -110,11 +110,18 @@ namespace TMG.Ilute.Model.Housing
         {
             //TODO: Fix income to use a manager
             float income = Math.Max(buyer.Families.Sum(f => f.Persons.Sum(p => p.Jobs.Sum(j => j.Salary.Amount))), 10000f);
+
+            // Stores a reference to where the buyer currently lives. 
             var buyerDwelling = buyer.Dwelling;
+
+
             var deltaRooms = 0;
             var sellerLU = _censusLandUse[seller.Zone];
             var industrialChange = 0.0f;
             var openChange = 0.0f;
+
+
+            // 
             if(buyerDwelling == null)
             {
                 deltaRooms = seller.Rooms;
