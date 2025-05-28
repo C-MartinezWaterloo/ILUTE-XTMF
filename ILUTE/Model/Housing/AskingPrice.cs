@@ -60,7 +60,7 @@ namespace TMG.Ilute.Model.Housing
         private Repository<FloatData> _distanceToSubway;
         private Repository<FloatData> _distanceToRegionalTransit;
         private Repository<FloatData> _unemployment;
-        private Dictionary<int, float> _personsPerRoomByZone;
+        private Dictionary<int, float> _averageDwellingValueByZone;
         private CurrencyManager _currencyManager;
 
         private Date _currentDate;
@@ -73,7 +73,7 @@ namespace TMG.Ilute.Model.Housing
 
         public void AfterMonthlyExecute(int currentYear, int month)
         {
-            _personsPerRoomByZone = null;
+            _averageDwellingValueByZone = null;
         }
 
         public void AfterYearlyExecute(int currentYear)
@@ -88,9 +88,10 @@ namespace TMG.Ilute.Model.Housing
         {
         }
 
-        public void BeforeYearlyExecute(int currentYear)
-        {
-            _personsPerRoomByZone = new Dictionary<int, float>();
+        public void BeforeYearlyExecute(int currentYear) { 
+
+
+            _averageDwellingValueByZone = new Dictionary<int, float>();
             _currencyManager = Repository.GetRepository(CurrencyManager);
         }
 
@@ -99,9 +100,13 @@ namespace TMG.Ilute.Model.Housing
             //TODO: Update all of the monthly rates / data here
 
             _currentDate = new Date(currentYear, month);
+
+            // Loading the required repositories
             _landUse = Repository.GetRepository(LandUse);
             _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
             _unemployment = Repository.GetRepository(UnemploymentByZone);
+
+
             AverageDwellingValueByZone(new Date(currentYear, month));
         }
 
@@ -113,23 +118,31 @@ namespace TMG.Ilute.Model.Housing
 
         private void AverageDwellingValueByZone(Date now)
         {
+            var valueSumByZone = new Dictionary<int, float>();
             var recordsByZone = new Dictionary<int, int>();
+
             foreach (var dwelling in Repository.GetRepository(Dwellings))
             {
                 var zone = dwelling.Zone;
-                recordsByZone.TryGetValue(zone, out int previousCount);
-                recordsByZone[zone] = previousCount + 1;
-                _personsPerRoomByZone.TryGetValue(zone, out var value);
-                _personsPerRoomByZone[zone] = value + _currencyManager.ConvertToYear(dwelling.Value, now).Amount;
+                float adjustedValue = _currencyManager.ConvertToYear(dwelling.Value, now).Amount;
+
+                if (!valueSumByZone.ContainsKey(zone))
+                {
+                    valueSumByZone[zone] = 0f;
+                    recordsByZone[zone] = 0;
+                }
+
+                valueSumByZone[zone] += adjustedValue;
+                recordsByZone[zone] += 1;
             }
-            var temp = _personsPerRoomByZone.ToArray();
-            foreach (var totals in temp)
+
+            foreach (var zone in valueSumByZone.Keys)
             {
-                var zone = totals.Key;
-                var value = totals.Value;
-                _personsPerRoomByZone[zone] = _personsPerRoomByZone[zone] / recordsByZone[zone];
+                float avg = valueSumByZone[zone] / recordsByZone[zone];
+                _averageDwellingValueByZone[zone] = avg;
             }
         }
+
 
 
         /// <summary>
@@ -180,9 +193,9 @@ namespace TMG.Ilute.Model.Housing
                 avgDistToSubwayKM = subwayData.Data;
             }
 
-
-            _personsPerRoomByZone.TryGetValue(ctZone, out var avgPersonsPerRoom);
+            _averageDwellingValueByZone.TryGetValue(ctZone, out var avgPersonsPerRoom);
             var averageSalePriceForThisType = 0.0f;
+
             switch (seller.Type)
             {
                 case Dwelling.DwellingType.Detched:
