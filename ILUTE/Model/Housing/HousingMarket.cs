@@ -480,7 +480,10 @@ namespace TMG.Ilute.Model.Housing
 
         protected override List<List<Bid>> SelectSellers(Rand rand, Household buyer, IReadOnlyList<IReadOnlyList<SellerValue>> sellers)
         {
+            //  Creates a List<List<Bid>>
             var ret = InitializeBidSet(sellers);
+
+            //  The minimum and maximum size is provided
             (var minSize, var maxSize) = GetHouseholdBounds(buyer);
             for (int dwellingType = 0; dwellingType < DwellingCategories; dwellingType++)
             {

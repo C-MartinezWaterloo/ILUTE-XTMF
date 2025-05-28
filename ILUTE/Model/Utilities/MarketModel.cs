@@ -155,6 +155,7 @@ namespace TMG.Ilute.Model.Utilities
                                 }
                                 try
                                 {
+                                    // Error checking 
                                     if (buyerIndex < 0 || buyerIndex >= buyers.Count)
                                     {
                                         throw new XTMFRuntimeException(this, $"buyerIndex is invalid: {buyerIndex}");
