@@ -114,14 +114,14 @@ namespace TMG.Ilute.Model.Housing
             // Stores a reference to where the buyer currently lives. 
             var buyerDwelling = buyer.Dwelling;
 
-
+            // Declaring the variables
             var deltaRooms = 0;
             var sellerLU = _censusLandUse[seller.Zone];
             var industrialChange = 0.0f;
             var openChange = 0.0f;
 
 
-            // 
+            // if the buyer does not have a home.
             if(buyerDwelling == null)
             {
                 deltaRooms = seller.Rooms;
