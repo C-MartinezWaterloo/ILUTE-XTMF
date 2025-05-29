@@ -131,23 +131,27 @@ namespace TMG.Ilute.Model.Utilities
                 //Parallel.For(0, successes.Length, (int buyerIndex) =>
                 for (int buyerIndex = 0; buyerIndex < successes.Length; buyerIndex++)
                 {
-                    // Find the option we had with the 
+                    // Contains the tuples of dwellings that the buyer has a top bid on
                     var buyerList = successes[buyerIndex];
                     switch (buyerList.Count)
                     {
                         case 0:
+                            // Buyer did not win any bids
                             break;
                         case 1:
-                            // resolve the choice set and clear out the seller from the model
+
+                            //Buyer is a top bidder for one home
                             ResolveSale(buyers[buyerIndex], sellers[buyerList[0].typeIndex][buyerList[0].sellerIndex].Unit, buyerList[0].amount);
                             choiceSets[buyerList[0].typeIndex][buyerList[0].sellerIndex].Clear();
                             break;
                         default:
                             {
+                                // Buyer is the top bidder in multiple homes, need to resolve
                                 int maxIndex = 0;
                                 float max = buyerList[maxIndex].amount;
                                 for (int i = 1; i < buyerList.Count; i++)
                                 {
+                                    //The model assumes that buyers prefer to win homes where others valued it highly, which implies higher market value or utility.
                                     if (buyerList[i].amount > max
                                         // we need this condition to resolve ties to avoid having a race condition
                                         || (buyerList[i].amount == max && buyerList[i].sellerIndex > buyerList[maxIndex].sellerIndex))

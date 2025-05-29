@@ -49,6 +49,9 @@ namespace TMG.Ilute.Model.Housing
         public IDataSource<CurrencyManager> CurrencyManager;
         private CurrencyManager _currencyManager;
 
+        [SubModelInformation(Required = true, Description = "The source of people in the model.")]
+        public IDataSource<Repository<Person>> PersonRepository;
+
         #region Parameters
         private const float RES_MOBILITY_SCALER = 0.5F;
         // From MA Habib pg 46:
@@ -72,7 +75,7 @@ namespace TMG.Ilute.Model.Housing
         private const float CHANGE_IN_BIR = -0.013F;
         private const float CHANGE_IN_BIR_ST_DEV = 0.035F;
         #endregion
-
+        
 
      
         public int InitialAverageSellingPriceDetached;
@@ -129,8 +132,8 @@ namespace TMG.Ilute.Model.Housing
                 CurrencyManager.LoadData();
             }
             _currencyManager = CurrencyManager.GiveData();
-            BidModel.AfterYearlyExecute(currentYear);
-            AskingPrices.AfterYearlyExecute(currentYear);
+            BidModel.AfterYearlyExecute(currentYear); // Nothing
+            AskingPrices.AfterYearlyExecute(currentYear); // Nothing 
         }
 
         public void BeforeFirstYear(int firstYear)
@@ -165,7 +168,6 @@ namespace TMG.Ilute.Model.Housing
 
             AskingPrices.Execute(currentYear, month);
             BidModel.Execute(currentYear, month);
-
             Execute(r, currentYear, month);
 
         }
@@ -239,8 +241,43 @@ namespace TMG.Ilute.Model.Housing
 
         private int _currentYear, _currentMonth;
 
+        // This function will calculate the labour Force participation rate (LFPR). This measures the active portion of a economy's working age
+        private float LabForcePartRateCalculation(IEnumerable<Person> personRepository)
+        {
+            int workingAgePop = 0;
+            int labourForce = 0;
+
+            foreach (var person in personRepository)
+            {
+                if (person.Age >= 15)
+                {
+                    workingAgePop++;
+
+                    // Check if the person is in the labour force (has at least one job)
+                    if (person.Jobs != null && person.Jobs.Count > 0)
+                    {
+                        labourForce++;
+                    }
+                }
+            }
+
+            if (workingAgePop == 0)
+            {
+                return 0f; // Avoid division by zero
+            }
+
+            return (float)labourForce / workingAgePop;
+        }
+
+
         private bool OptIntoMarket(Rand rand, Household hhld)
         {
+            float labourForcePartRate = 0;
+
+            var people = Repository.GetRepository(PersonRepository);
+
+            labourForcePartRate = LabForcePartRateCalculation(people);
+
             const float nonMoverRatio = 0.95f;
             var dwelling = hhld.Dwelling;
             // 1% chance of increasing the # of employed people in the household
@@ -299,9 +336,8 @@ namespace TMG.Ilute.Model.Housing
                           + _changeInBIR * (rand.InvStdNormalCDF() * CHANGE_IN_BIR_ST_DEV + CHANGE_IN_BIR)
                           + yearsInDwelling * (rand.InvStdNormalCDF() * DUR_IN_DWELL_ST_DEV + DUR_IN_DWELL)
                           + numbOfJobs * NUM_JOBS
-                          // TODO: Build the backend for these parts of the utility function
                           + nonMoverRatio * NON_MOVER_RATIO
-                          //+ labourForcePartRate * LABOUR_FORCE_PARTN
+                          + labourForcePartRate * LABOUR_FORCE_PARTN
                           ;
 
             probMoving = Math.Exp(probMoving) / (1 + Math.Exp(probMoving)) * RES_MOBILITY_SCALER;
@@ -478,14 +514,9 @@ namespace TMG.Ilute.Model.Housing
         [RunParameter("Choice Set Size", 10, "The size of the choice set for the buyer for each dwelling class.")]
         public int ChoiceSetSize;
 
-        // constructs a choice set of bids from a pool of sellers for a given buyer
-
         protected override List<List<Bid>> SelectSellers(Rand rand, Household buyer, IReadOnlyList<IReadOnlyList<SellerValue>> sellers)
         {
-            //  Creates a List<List<Bid>>
             var ret = InitializeBidSet(sellers);
-
-            //  The minimum and maximum size is provided
             (var minSize, var maxSize) = GetHouseholdBounds(buyer);
             for (int dwellingType = 0; dwellingType < DwellingCategories; dwellingType++)
             {
