@@ -169,7 +169,7 @@ namespace TMG.Ilute.Model.Housing
             return (decayedPrice, minPrice);
         }
 
-
+        // Asking price is the inital price that the seller will publically list. The minimum bid is lowest price the seller is willing to accept
 
         private (float askingPrice, float minimumBid) DwellingPrice(Dwelling seller)
         {

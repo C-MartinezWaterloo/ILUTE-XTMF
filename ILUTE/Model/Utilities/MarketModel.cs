@@ -70,8 +70,8 @@ namespace TMG.Ilute.Model.Utilities
 
             var choiceSets = BuildChoiceSets(random, buyers, sellers);
 
-            // Iterative Market Clearing Loop
-
+            // Iterative Market Clearing Loop. Goal is to prepare the best matches for each buyer for later market resolution
+            // MaxIterations = 20
             for (int iteration = 0; iteration < MaxIterations; ++iteration)
             {
 
@@ -80,19 +80,19 @@ namespace TMG.Ilute.Model.Utilities
                 // Each list will hold tuples representing:
                 // (1) the seller's dwelling type index,
                 // (2) the seller's index within that type,
-                // (3) the second-highest bid value (used for resolving tie-breaks during market clearing).
+                // (3) the second-highest bid value (Vickrey Acution Logic).
 
 
                 var successes = buyers.Select(buyer => new List<(int typeIndex, int sellerIndex, float amount)>()).ToArray();
                 try
                 {
-                    // Get all of the best buyers by first iterating through the seller type, i.e. detached, apartment
+                    // Iterating through the seller type, i.e. detached, apartment
                     for (int sellerType = 0; sellerType < choiceSets.Count; ++sellerType)
                     {
                         // For each seller type, iterate through the indivdual sellers of that type in parallel
                         Parallel.For(0, choiceSets[sellerType].Count, (int sellerIndex) =>
                         {
-                            // variable options will determine bids from buyers. BIDS ARE SORTED FROM HIGHEST -> LOWEST.
+                            // options will determine bids from buyers. BIDS ARE SORTED FROM HIGHEST -> LOWEST.
                             var options = choiceSets[sellerType][sellerIndex];
                             if (options.Count > 0)
                             {
@@ -105,16 +105,18 @@ namespace TMG.Ilute.Model.Utilities
                                     throw new XTMFRuntimeException(this, $"Bad buyer index {bestBid.BuyerIndex}!");
                                 }
 
-
+                                // BuyerList Collects all the homes a buyer has "won": or is being considered in this round
                                 var buyerList = successes[bestBid.BuyerIndex];
                                 lock (buyerList)
                                 {
                                     // The value is the amount the next highest a person would pay. This comes from the Vickrey auction model that says the value someone needs to win is just $1 more than what the next-highest bidder would have paid.
+                                    // The last part checks whether the second best option exists, if not defaults to the first.
                                     buyerList.Add((sellerType, sellerIndex, options.Count > 0 ? options[0].Amount : bestBid.Amount));
                                 }
                             }
                         });
                     }
+                    //
                 }
                 catch
                 {
