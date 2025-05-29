@@ -219,6 +219,8 @@ namespace TMG.Ilute.Model.Housing
             {
                 throw new XTMFRuntimeException(this, $"We were not able to find land use information for the zone {ctZone}");
             }
+
+            // units are likely in $100,000 with the dollar likely from 2003-2004. This is based on the seller type data shown above.
             double price = 4.0312
                 + 0.07625 * seller.Rooms
                 - 0.0067 * avgDistToSubwayKM
