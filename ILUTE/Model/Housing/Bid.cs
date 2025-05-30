@@ -109,28 +109,38 @@ namespace TMG.Ilute.Model.Housing
         public float GetPrice(Household buyer, Dwelling seller, float askingPrice)
         {
             float income = GetHouseholdIncome(buyer);
-
             var buyerDwelling = buyer.Dwelling;
-            var deltaRooms = 0;
+
+            // Land use effects
             var sellerLU = _censusLandUse[seller.Zone];
-            var industrialChange = 0.0f;
-            var openChange = 0.0f;
+            float openChange = sellerLU.Open > 0 ? (float)Math.Log(sellerLU.Open) : 0f;
+            float industrialChange = sellerLU.Industrial > 0 ? (float)Math.Log(sellerLU.Industrial) : 0f;
 
-            if (buyerDwelling == null)
-            {
-                deltaRooms = seller.Rooms;
-                openChange = sellerLU.Open > 0 ? (float)Math.Log(sellerLU.Open) : 0f;
-                industrialChange = sellerLU.Industrial > 0 ? (float)Math.Log(sellerLU.Industrial) : 0f;
-            }
-            else
-            {
-                var currentLU = _censusLandUse[buyerDwelling.Zone];
-                deltaRooms = seller.Rooms - buyerDwelling.Rooms;
-            }
+            // How many more rooms this dwelling offers
+            int deltaRooms = buyerDwelling == null ? seller.Rooms : seller.Rooms - buyerDwelling.Rooms;
 
-            // TEMP: Still returns 0f until bidding logic is added
-            return 0f;
+            // --- Bidding Logic ---
+
+            // Base bid is a fraction of buyer's annual income
+            float baseBid = 0.3f * income; // 30% of household income (heuristic)
+
+            // Bonus for more space (positive deltaRooms)
+            float spaceValue = deltaRooms * 10000f;
+
+            // Bonus/penalty for local land use
+            float openBonus = openChange * 5000f;
+            float industrialPenalty = industrialChange * 8000f;
+
+            // Try to bid just under asking (simulates bargaining)
+            float proximityDiscount = askingPrice * 0.97f; // start at 97% of asking
+
+            // Final bid: income-based floor vs. environment/location adjusted ceiling
+            float bid = Math.Min(proximityDiscount, baseBid + spaceValue + openBonus - industrialPenalty);
+
+            // Never bid less than a minimum threshold
+            return Math.Max(bid, 0.2f * income); // Don’t offer less than 20% of income
         }
+
 
 
 
