@@ -141,9 +141,6 @@ namespace TMG.Ilute.Model.Housing
             return Math.Max(bid, 0.2f * income); // Don’t offer less than 20% of income
         }
 
-
-
-
         public void RunFinished(int finalYear)
         {
         }
