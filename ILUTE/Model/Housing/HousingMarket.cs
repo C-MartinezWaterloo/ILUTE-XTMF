@@ -514,17 +514,35 @@ namespace TMG.Ilute.Model.Housing
         [RunParameter("Choice Set Size", 10, "The size of the choice set for the buyer for each dwelling class.")]
         public int ChoiceSetSize;
 
+
+        // Construct a personalized list of bids that a buyer places on suitable dwellings
+        // Outer list: One entry per dwelling category
+        // Inner lists: bids placed by this buyer in that category
+
         protected override List<List<Bid>> SelectSellers(Rand rand, Household buyer, IReadOnlyList<IReadOnlyList<SellerValue>> sellers)
         {
+            // empty list to hold the buyer's bid
+            // Returns a List<Bid> for each dwelling category
             var ret = InitializeBidSet(sellers);
+
+            // Get what room sizes the buyer wants
             (var minSize, var maxSize) = GetHouseholdBounds(buyer);
+
+            // Go through all the dwelling types and room sizes that buyer is open to
+
             for (int dwellingType = 0; dwellingType < DwellingCategories; dwellingType++)
             {
                 for (int rooms = minSize; rooms <= maxSize; rooms++)
                 {
+
+                    // Convert(type,rooms) into a flat index
                     var index = ComputeHouseholdCategory((Dwelling.DwellingType)dwellingType, rooms);
+                    // Where this buyer's bid for this category will be stored
                     var retRow = ret[index];
+                    // where this buyer's bids for this category will be stored
                     var sellerRow = sellers[index];
+
+                    // If fewer sellers than the choice set size, bid on everyone
                     if (sellerRow.Count < ChoiceSetSize)
                     {
                         retRow.AddRange(sellerRow.Select((seller, i) => new Bid(BidModel.GetPrice(buyer, seller.Unit, seller.AskingPrice), i)));
@@ -558,6 +576,8 @@ namespace TMG.Ilute.Model.Housing
             return isDemandingLarger ? (persons, persons + 1)
                                      : (persons - 1, persons);
         }
+
+        // It creates a new outer list of empty inner lists, one for each seller category.
 
         private static List<List<Bid>> InitializeBidSet(IReadOnlyList<IReadOnlyList<SellerValue>> sellers)
         {
