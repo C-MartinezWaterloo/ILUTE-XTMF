@@ -108,21 +108,15 @@ namespace TMG.Ilute.Model.Housing
 
         public float GetPrice(Household buyer, Dwelling seller, float askingPrice)
         {
-            //TODO: Fix income to use a manager
-            float income = Math.Max(buyer.Families.Sum(f => f.Persons.Sum(p => p.Jobs.Sum(j => j.Salary.Amount))), 10000f);
+            float income = GetHouseholdIncome(buyer);
 
-            // Stores a reference to where the buyer currently lives. 
             var buyerDwelling = buyer.Dwelling;
-
-            // Declaring the variables
             var deltaRooms = 0;
             var sellerLU = _censusLandUse[seller.Zone];
             var industrialChange = 0.0f;
             var openChange = 0.0f;
 
-
-            // if the buyer does not have a home.
-            if(buyerDwelling == null)
+            if (buyerDwelling == null)
             {
                 deltaRooms = seller.Rooms;
                 openChange = sellerLU.Open > 0 ? (float)Math.Log(sellerLU.Open) : 0f;
@@ -133,8 +127,12 @@ namespace TMG.Ilute.Model.Housing
                 var currentLU = _censusLandUse[buyerDwelling.Zone];
                 deltaRooms = seller.Rooms - buyerDwelling.Rooms;
             }
+
+            // TEMP: Still returns 0f until bidding logic is added
             return 0f;
         }
+
+
 
         public void RunFinished(int finalYear)
         {
@@ -144,5 +142,15 @@ namespace TMG.Ilute.Model.Housing
         {
             return true;
         }
+
+        // Summing up the houshold income
+        private float GetHouseholdIncome(Household household)
+        {
+            return Math.Max(
+                household.Families.Sum(f => f.Persons.Sum(p => p.Jobs.Sum(j => j.Salary.Amount))),
+                10000f // floor to prevent zero-income edge cases
+            );
+        }
+
     }
 }
