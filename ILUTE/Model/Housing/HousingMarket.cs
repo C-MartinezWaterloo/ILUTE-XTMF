@@ -542,9 +542,12 @@ namespace TMG.Ilute.Model.Housing
                     // where this buyer's bids for this category will be stored
                     var sellerRow = sellers[index];
 
-                    // If fewer sellers than the choice set size, bid on everyone
+                    // If fewer sellers than the choice set size, bid on everyone. ChoiceSetSize = 10. 
                     if (sellerRow.Count < ChoiceSetSize)
                     {
+                        // For all sellers in this category, convert each one into a Bid for this buyer, then store all those bids in the return list for this household category.
+                        // Since we have fewer sellers than the choice set size, take them all and stop looking at other room sizes.
+
                         retRow.AddRange(sellerRow.Select((seller, i) => new Bid(BidModel.GetPrice(buyer, seller.Unit, seller.AskingPrice), i)));
                         break;
                     }
