@@ -552,9 +552,14 @@ namespace TMG.Ilute.Model.Housing
                         break;
                     }
                     var attempts = 0;
+
+
+                       // keep looping until you have enough bids
+                       // retRow is for a single category
                     while (retRow.Count < ChoiceSetSize && attempts++ < ChoiceSetSize * 2)
                     {
-                        var sellerIndex = (int)(retRow.Count * rand.NextFloat());
+                        // sellerIndex picks a random house
+                        var sellerIndex = (int)(sellerRow.Count * rand.NextFloat());
                         var toCheck = sellerRow[sellerIndex];
                         var price = BidModel.GetPrice(buyer, toCheck.Unit, toCheck.AskingPrice);
                         if (sellerIndex >= retRow.Count || sellerIndex < 0)
