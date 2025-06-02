@@ -315,6 +315,7 @@ namespace TMG.Ilute.Model.Utilities
             Parallel.For(0, buyersWithRandomSeed.Count, (int buyerIndex) =>
             {
                 Rand buyerRand = new Rand((uint)(buyersWithRandomSeed[buyerIndex].randomSeed * uint.MaxValue));
+                // For the housing market model, Returns a List<Bid> for each dwelling category. 
                 var ret = SelectSellers(buyerRand, buyersWithRandomSeed[buyerIndex].buyer, sellers);
                 // Record the results
                 for (int typeIndex = 0; typeIndex < ret.Count; ++typeIndex)
