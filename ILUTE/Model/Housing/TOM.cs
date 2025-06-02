@@ -14,7 +14,7 @@ using XTMF;
 
 namespace TMG.Ilute.Model.Housing
 {
-    
+    // Based on the paper by Yicong Liu et al.
     public class SellerBehaviorModel
     {
         // This determines three possible ways a home can leave the market. (1) Sold (2) Withdrawn and (3) Relisted
