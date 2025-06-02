@@ -14,22 +14,23 @@ using XTMF;
 
 namespace TMG.Ilute.Model.Housing
 {
+    
     public class SellerBehaviorModel
     {
         // This determines three possible ways a home can leave the market. (1) Sold (2) Withdrawn and (3) Relisted
         public enum Outcome { Sold, Withdrawn, Relisted }
 
-        public Outcome EvaluateOutcome(Dwelling dwelling, float askingPrice, int monthsOnMarket, bool isRelisted)
+        public Outcome EvaluateOutcome(Dwelling dwelling, float askingPrice, int monthsOnMarket, bool isRelisted, Rand rand)
         {
             // Compute probabilities for each outcome using logit model
-            float pSold;
-            float pWithdraw;
-            float pRelist;
+            float pSold = 0;
+            float pWithdraw =0;
+            float pRelist = 0;
 
-        // Sample one outcome using those probabilities
-        float rand = Rand.NextFloat();
-            if (rand < pSold) return Outcome.Sold;
-            if (rand < pSold + pWithdraw) return Outcome.Withdrawn;
+            // Sample one outcome using those probabilities
+            float r = rand.NextFloat(); // returns a float between 0.0 and 1.0
+            if (r < pSold) return Outcome.Sold;
+            if (r < pSold + pWithdraw) return Outcome.Withdrawn;
             return Outcome.Relisted;
         }
 
