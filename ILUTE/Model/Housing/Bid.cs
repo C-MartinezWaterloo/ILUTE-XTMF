@@ -108,6 +108,8 @@ namespace TMG.Ilute.Model.Housing
 
         public float GetPrice(Household buyer, Dwelling seller, float askingPrice)
         {
+
+            // This calculates the bid amoujnt that a simulated buyer would offer to purchase a dwelling
             float income = GetHouseholdIncome(buyer);
             var buyerDwelling = buyer.Dwelling;
 
