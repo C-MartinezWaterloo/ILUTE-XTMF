@@ -120,8 +120,6 @@ namespace TMG.Ilute.Model.Housing
         {
             BidModel.AfterMonthlyExecute(currentYear, month); // Nothing
             AskingPrices.AfterMonthlyExecute(currentYear, month); // Nothing
-            RemoveStaleBuyers();
-            RemoveStaleSellers();
             PrepareCarryover();
         }
 
@@ -388,61 +386,6 @@ namespace TMG.Ilute.Model.Housing
         private List<Dwelling> _sellersToCarry = new();
 
 
-        private void RemoveStaleBuyers()
-        {
-            var toRemove = new List<long>();
-
-            foreach (var buyer in _remainingHouseholds.Values)
-            {
-                _buyerDurations.TryGetValue(buyer.Id, out var duration);
-                duration++;
-
-                if (duration >= MAX_HOUSEHOLD_DURATION)
-                {
-                    toRemove.Add(buyer.Id);
-                }
-                else
-                {
-                    _buyerDurations[buyer.Id] = duration;
-                    _buyersToCarry.Add(buyer);
-                }
-            }
-
-            foreach (var id in toRemove)
-            {
-                _remainingHouseholds.TryRemove(id, out _); // thread-safe
-                _buyerDurations.Remove(id);
-            }
-        }
-
-
-        private void RemoveStaleSellers()
-        {
-            var toRemove = new List<long>();
-
-            foreach (var seller in _remainingDwellings.Values)
-            {
-                _sellerDurations.TryGetValue(seller.Id, out var duration);
-                duration++;
-
-                if (duration >= MAX_DWELLING_DURATION)
-                {
-                    toRemove.Add(seller.Id);
-                }
-                else
-                {
-                    _sellerDurations[seller.Id] = duration;
-                    _sellersToCarry.Add(seller);
-                }
-            }
-
-            // Remove after iteration is complete
-            foreach (var id in toRemove)
-            {
-                _remainingDwellings.TryRemove(id, out _); // safer for ConcurrentDictionary
-                _sellerDurations.Remove(id);
-            }
-        }
 
 
         private void PrepareCarryover()
