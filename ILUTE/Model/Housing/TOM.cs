@@ -45,7 +45,7 @@ namespace TMG.Ilute.Model.Housing
         {
             // Use covariates: price, garage, etc.
             // λ = exp(Xβ)
-            return MathF.Exp(...);
+            return 0; //  MathF.Exp(...);
         }
     }
 
