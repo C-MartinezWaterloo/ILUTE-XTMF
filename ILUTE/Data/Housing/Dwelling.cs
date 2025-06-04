@@ -70,7 +70,7 @@ namespace TMG.Ilute.Data.Housing
 
         public enum DwellingType
         {
-            Detched = 0,
+            Detached = 0,
             Attached = 1,
             SemiDetached = 2,
             ApartmentLow = 3,

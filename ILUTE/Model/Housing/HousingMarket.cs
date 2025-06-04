@@ -417,7 +417,7 @@ namespace TMG.Ilute.Model.Housing
             var offset = Detached;
             switch (dwellingType)
             {
-                case Dwelling.DwellingType.Detched:
+                case Dwelling.DwellingType.Detached:
                     break;
                 case Dwelling.DwellingType.SemiDetached:
                     offset = SemiDetached;
