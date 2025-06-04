@@ -198,7 +198,7 @@ namespace TMG.Ilute.Model.Housing
 
             switch (seller.Type)
             {
-                case Dwelling.DwellingType.Detched:
+                case Dwelling.DwellingType.Detached:
                     //myZone.AvgSellPriceDet
                     averageSalePriceForThisType = 300000;
                     break;
