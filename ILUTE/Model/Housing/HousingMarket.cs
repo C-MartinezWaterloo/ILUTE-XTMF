@@ -106,7 +106,7 @@ namespace TMG.Ilute.Model.Housing
 
         // Exports columns for writing to CSV
 
-        public List<string> Headers => new List<string>() { "DwellingsSold", "HouseholdsRemaining", "DwellingsReamining", "AverageSalePrice" };
+        public List<string> Headers => new List<string>() { "DwellingsSold", "HouseholdsRemaining", "DwellingsRemaining", "AverageSalePrice" };
 
         public List<float> YearlyResults => new List<float>()
         {
@@ -195,7 +195,7 @@ namespace TMG.Ilute.Model.Housing
 
         private List<Dwelling> _monthlyBuyerCurrentDwellings;
 
-        //  Thread-safe collection of housholds that want a larger home
+        //  Thread-safe collection of households that want a larger home
 
         private ConcurrentBag<long> _demandLargerDwelling;
 
@@ -300,7 +300,7 @@ namespace TMG.Ilute.Model.Housing
             var headAge = hhld.Families.Max(f => f.Persons.Max(p => p.Age));
             var numbOfJobs = hhld.Families.Sum(f => f.Persons.Count(p => p.Jobs.Any()));
 
-            int demandCounter = 0; // Determines whether a houshold likely needs a larger dwelling
+            int demandCounter = 0; // Determines whether a household likely needs a larger dwelling
             double probMoving = RES_MOBILITY_CONSTANT;  // base parameter (M.A. Habib, 2009. pg. 46)
 
             if (jobIncrease)
