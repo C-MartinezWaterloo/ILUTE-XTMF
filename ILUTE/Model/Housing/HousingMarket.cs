@@ -562,6 +562,16 @@ namespace TMG.Ilute.Model.Housing
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        public override bool RuntimeValidation(ref string error)
+        {
+            if (DwellingRepository == null)
+            {
+                error = Name + ": missing dwelling repository.";
+                return false;
+            }
+            return base.RuntimeValidation(ref error);
+        }
         #endregion
     }
 }
