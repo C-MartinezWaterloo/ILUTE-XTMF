@@ -280,11 +280,8 @@ namespace TMG.Ilute.Model.Demographic
             {
                 GC.SuppressFinalize(this);
             }
-            if (RandomGenerator != null)
-            {
-                RandomGenerator.Dispose();
-                RandomGenerator = null;
-            }
+            RandomGenerator?.Dispose();
+            RandomGenerator = null;
         }
 
         public void Dispose()
