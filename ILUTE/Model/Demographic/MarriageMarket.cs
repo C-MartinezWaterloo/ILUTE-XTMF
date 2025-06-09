@@ -222,8 +222,11 @@ namespace TMG.Ilute.Model.Demographic
             {
                 GC.SuppressFinalize(this);
             }
-            _randomGenerator.Dispose();
-            _randomGenerator = null;
+            if (_randomGenerator != null)
+            {
+                _randomGenerator.Dispose();
+                _randomGenerator = null;
+            }
         }
 
         public void Dispose()
