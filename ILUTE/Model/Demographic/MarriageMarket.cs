@@ -224,7 +224,7 @@ namespace TMG.Ilute.Model.Demographic
             }
             if (_randomGenerator != null)
             {
-                _randomGenerator.Dispose();
+                _randomGenerator?.Dispose();
                 _randomGenerator = null;
             }
         }

@@ -266,7 +266,7 @@ namespace TMG.Ilute.Model.Demographic
             }
             if (RandomGenerator != null)
             {
-                RandomGenerator.Dispose();
+                RandomGenerator?.Dispose();
                 RandomGenerator = null;
             }
         }
