@@ -90,7 +90,7 @@ namespace TMG.Ilute.Data.Demographics
             }
         }
 
-        public void Divorse(Repository<Family> familyRepo)
+        public void Divorce(Repository<Family> familyRepo)
         {
             var female = FemaleHead;
             var male = MaleHead;

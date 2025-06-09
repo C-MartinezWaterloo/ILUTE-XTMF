@@ -143,7 +143,9 @@ namespace TMG.Ilute.Model.Demographic
         {
             get
             {
-                return new List<float>() {(float)DivorceProbability / NumberOfTimes, NumberOfTimes };
+                // Guard against divide by zero when no divorces occurred
+                var probability = NumberOfTimes == 0 ? 0f : (float)DivorceProbability / NumberOfTimes;
+                return new List<float>() { probability, NumberOfTimes };
             }
         }
 
@@ -167,7 +169,7 @@ namespace TMG.Ilute.Model.Demographic
                    if (female != null && male != null && female.Spouse == male)
                    {
                        var pick = rand.Take();
-                       if (CheckIfShouldDivorse(pick, family, year))
+                        if (CheckIfShouldDivorce(pick, family, year))
                        {
                            toDivoce.Add(family);
                        }
@@ -180,7 +182,7 @@ namespace TMG.Ilute.Model.Demographic
             // After identifying all of the families to be divorced, do so.
             foreach (var family in toDivoce)
             {
-                family.Divorse(families);
+                family.Divorce(families);
             }
             log.WriteToLog("Finished divorcing all families.");
         }
@@ -188,7 +190,7 @@ namespace TMG.Ilute.Model.Demographic
         double DivorceProbability;
         int NumberOfTimes;
 
-        private bool CheckIfShouldDivorse(float pick, Family family, int currentYear)
+        private bool CheckIfShouldDivorce(float pick, Family family, int currentYear)
         {
             var female = family.FemaleHead;
             var male = family.MaleHead;
@@ -280,11 +282,8 @@ namespace TMG.Ilute.Model.Demographic
             {
                 GC.SuppressFinalize(this);
             }
-            if (RandomGenerator != null)
-            {
-                RandomGenerator.Dispose();
-                RandomGenerator = null;
-            }
+            RandomGenerator?.Dispose();
+            RandomGenerator = null;
         }
 
         public void Dispose()
