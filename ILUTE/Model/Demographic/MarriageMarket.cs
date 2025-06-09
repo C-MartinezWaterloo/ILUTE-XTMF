@@ -216,6 +216,21 @@ namespace TMG.Ilute.Model.Demographic
         {
         }
 
+        public bool RuntimeValidation(ref string error)
+        {
+            if (PersonRepository == null)
+            {
+                error = Name + ": missing persons repository.";
+                return false;
+            }
+            if (FamilyRepository == null)
+            {
+                error = Name + ": missing families repository.";
+                return false;
+            }
+            return true;
+        }
+
         private void Dispose(bool managed)
         {
             if (managed)
