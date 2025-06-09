@@ -120,6 +120,11 @@ namespace TMG.Ilute.Model.Demographic
 
             public bool RuntimeValidation(ref string error)
             {
+                if (YearlyFamilyData == null || YearlyIndividualsData == null)
+                {
+                    error = Name + ": missing yearly immigration data.";
+                    return false;
+                }
                 return true;
             }
             private Person CreatePerson(float rand, int age, int sex, int maritalStatus)
@@ -587,6 +592,21 @@ namespace TMG.Ilute.Model.Demographic
 
         public bool RuntimeValidation(ref string error)
         {
+            if (RepositoryPerson == null)
+            {
+                error = Name + ": missing persons repository.";
+                return false;
+            }
+            if (RepositoryFamily == null)
+            {
+                error = Name + ": missing families repository.";
+                return false;
+            }
+            if (RepositoryHousehold == null)
+            {
+                error = Name + ": missing households repository.";
+                return false;
+            }
             return true;
         }
 

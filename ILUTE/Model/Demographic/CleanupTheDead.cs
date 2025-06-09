@@ -109,6 +109,11 @@ namespace TMG.Ilute.Model.Demographic
 
         public bool RuntimeValidation(ref string error)
         {
+            if (Households == null)
+            {
+                error = Name + ": missing households repository.";
+                return false;
+            }
             return true;
         }
     }

@@ -83,6 +83,16 @@ Household:
 
         public bool RuntimeValidation(ref string error)
         {
+            if (RepositoryHousehold == null)
+            {
+                error = Name + ": missing households repository.";
+                return false;
+            }
+            if (RepositoryDwellings == null)
+            {
+                error = Name + ": missing dwellings repository.";
+                return false;
+            }
             return true;
         }
 

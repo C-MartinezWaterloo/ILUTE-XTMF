@@ -103,6 +103,11 @@ namespace TMG.Ilute.Model.Housing.Validation
 
         public bool RuntimeValidation(ref string error)
         {
+            if (Dwellings == null)
+            {
+                error = Name + ": missing dwellings repository.";
+                return false;
+            }
             return true;
         }
 
