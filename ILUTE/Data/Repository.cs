@@ -75,8 +75,21 @@ namespace TMG.Ilute.Data
 
         public void LoadData()
         {
-            _dependents = DependentResources?.Select(repository => repository.AcquireResource<Repository>()).ToArray() ?? new Repository[0];
-            Loaded = true;
+            try
+            {
+                _dependents = DependentResources?.Select(repository => repository.AcquireResource<Repository>()).ToArray() ?? Array.Empty<Repository>();
+                Loaded = true;
+            }
+            catch(XTMFRuntimeException)
+            {
+                throw;
+            }
+
+            catch (Exception ex)
+            {
+                throw new XTMFRuntimeException(this, ex); 
+            }
+
         }
 
         public Repository<T> GiveData()

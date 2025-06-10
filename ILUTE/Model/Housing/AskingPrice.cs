@@ -100,14 +100,11 @@ namespace TMG.Ilute.Model.Housing
             //TODO: Update all of the monthly rates / data here
 
             _currentDate = new Date(currentYear, month);
-
             // Loading the required repositories
             _landUse = Repository.GetRepository(LandUse);
             _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
             _unemployment = Repository.GetRepository(UnemploymentByZone);
             _distanceToRegionalTransit = Repository.GetRepository(DistanceToRegionalTransit);
-
-
             AverageDwellingValueByZone(new Date(currentYear, month));
         }
 

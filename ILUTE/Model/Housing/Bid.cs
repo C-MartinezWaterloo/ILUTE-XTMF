@@ -59,7 +59,21 @@ namespace TMG.Ilute.Model.Housing
 
         public void BeforeFirstYear(int firstYear)
         {
-            _censusLandUse = Repository.GetRepository(CensusLandUse);
+            try
+            {
+                _censusLandUse = Repository.GetRepository(CensusLandUse);
+            }
+
+            catch (XTMFRuntimeException e)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                throw new XTMFRuntimeException(CensusLandUse.GiveData() as IModule ?? this, e);
+
+
+            }
         }
 
         public void BeforeMonthlyExecute(int currentYear, int month)

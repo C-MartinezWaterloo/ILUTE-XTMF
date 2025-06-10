@@ -67,28 +67,36 @@ namespace TMG.Ilute.Data.Spatial
 
         public void LoadData()
         {
-            var data = new Repository<LandUse>();
-            data.LoadData();
-            using (var reader = new CsvReader(LUFileLocation, true))
+            try
             {
-                while (reader.LoadLine(out int columns))
+                var data = new Repository<LandUse>();
+                data.LoadData();
+                using (var reader = new CsvReader(LUFileLocation, true))
                 {
-                    // make sure the line has enough data
-                    if (columns > 4)
+                    while (reader.LoadLine(out int columns))
                     {
-                        reader.Get(out int zoneNumber, 0);
-                        reader.Get(out float residential, 1);
-                        reader.Get(out float commericial, 2);
-                        reader.Get(out float open, 3);
-                        reader.Get(out float industry, 4);
-                        // industrial
-                        data.AddNew(zoneNumber, new LandUse(zoneNumber, residential, commericial, open, industry));
+                        // make sure the line has enough data
+                        if (columns > 4)
+                        {
+                            reader.Get(out int zoneNumber, 0);
+                            reader.Get(out float residential, 1);
+                            reader.Get(out float commericial, 2);
+                            reader.Get(out float open, 3);
+                            reader.Get(out float industry, 4);
+                            // industrial
+                            data.AddNew(zoneNumber, new LandUse(zoneNumber, residential, commericial, open, industry));
+                        }
                     }
                 }
+                _Data = data;
+                Loaded = true;
             }
-            _Data = data;
-            Loaded = true;
+            catch (Exception ex)
+            {
+                throw new XTMFRuntimeException(this, ex);
+            }
         }
+
 
         public bool RuntimeValidation(ref string error)
         {
