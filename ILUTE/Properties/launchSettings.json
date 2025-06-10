@@ -2,7 +2,7 @@
   "profiles": {
     "Profile 1": {
       "commandName": "Executable",
-      "executablePath": "C:\\Summer 2025\\XTMF-Dev/XTMF.Gui.exe",
+      "executablePath": "F:\\Summer 2025\\TravelModellingGroup\\XTMF-Dev\\XTMF.Gui.exe",
       "nativeDebugging": true
     }
   }

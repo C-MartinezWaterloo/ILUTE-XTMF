@@ -105,6 +105,7 @@ namespace TMG.Ilute.Model.Housing
             _landUse = Repository.GetRepository(LandUse);
             _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
             _unemployment = Repository.GetRepository(UnemploymentByZone);
+            _distanceToRegionalTransit = Repository.GetRepository(DistanceToRegionalTransit);
 
 
             AverageDwellingValueByZone(new Date(currentYear, month));
