@@ -46,7 +46,7 @@ namespace TMG.Ilute.Model.Housing
         [SubModelInformation(Required = true, Description = "The average distance to the subway by zone.")]
         public IDataSource<Repository<FloatData>> DistanceToSubwayByZone;
 
-        [SubModelInformation(Required = true, Description = "The average distance to Regional Transit by Zone")]
+        [SubModelInformation(Required = true, Description = "The average distance to Regional Transit by Zone.")]
         public IDataSource<Repository<FloatData>> DistanceToRegionalTransit;
 
         [SubModelInformation(Required = true, Description = "The unemployment rate by zone.")]
