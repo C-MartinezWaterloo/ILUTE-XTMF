@@ -48,8 +48,16 @@ namespace TMG.Ilute.Model.Utilities
         /// <param name="date">The year to convert it to.</param>
         /// <returns>A new money object for the given date</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+
+
         public Money ConvertToYear(Money money, Date date)
         {
+            // If no inflation data is loaded, return the original amount for the target year
+            if (_inflationRateByMonth == null)
+            {
+                return new Money(money.Amount, date);
+            }
+
             // apply 0 inflation for now once we have some inflation tables use those instead.
             return new Money(money.Amount * (GetRate(money.WhenCreated) / GetRate(date)), date);
         }
@@ -60,8 +68,15 @@ namespace TMG.Ilute.Model.Utilities
         /// <param name="date">The date to get the rate for</param>
         /// <returns>The inflation rate for the given year.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+
         private float GetRate(Date date)
         {
+            // When inflation data is unavailable, treat the rate as 1
+            if (_inflationRateByMonth == null)
+            {
+                return 1f;
+            }
+
             return _inflationRateByMonth[date.Months];
         }
 

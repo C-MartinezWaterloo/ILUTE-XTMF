@@ -216,7 +216,8 @@ namespace TMG.Ilute.Model.Housing
             }
             if (!_landUse.TryGet(ctZone, out var landUse))
             {
-                throw new XTMFRuntimeException(this, $"We were not able to find land use information for the zone {ctZone}");
+                //throw new XTMFRuntimeException(this, $"We were not able to find land use information for the zone {ctZone}");
+                landUse = new TMG.Ilute.Data.Spatial.LandUse(ctZone, 0, 0, 0, 0);
             }
 
             // Distinguish between high rise and low rise 
