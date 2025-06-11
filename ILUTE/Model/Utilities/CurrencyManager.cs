@@ -29,6 +29,7 @@ using XTMF;
 namespace TMG.Ilute.Model.Utilities
 {
     [ModuleInformation(Description = "This module is designed to help convert money between years.")]
+
     public sealed class CurrencyManager : IDataSource<CurrencyManager>
     {
         [SubModelInformation(Required = false, Description = "Inflation rate per year.")]

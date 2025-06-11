@@ -36,6 +36,9 @@ public sealed class ZeroRepository : IDataSource<Repository<FloatData>>
     {
         var data = new Repository<FloatData>();
 
+        // Ensure the repository is initialized so dependents are setup
+        data.LoadData();
+
         // SYNTAX: The Repository class is defined in Repository.cs
 
         var zoneSystemToLoad = ZoneSystem ?? Root.ZoneSystem;

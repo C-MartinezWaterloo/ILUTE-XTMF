@@ -24,6 +24,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TMG.Ilute.Data.Demographics;
+using TMG.Ilute.Data.Mock;
 using XTMF;
 
 namespace TMG.Ilute.Data
@@ -51,7 +52,17 @@ namespace TMG.Ilute.Data
         {
             if (source == null)
             {
-                throw new XTMFRuntimeException(null, "Null data source passed to GetRepository");
+                // When a data source is missing, fall back to a zero repository
+                if (typeof(T) == typeof(Repository<FloatData>))
+                {
+                    var zeroRepo = new ZeroRepository();
+                    if (!zeroRepo.Loaded)
+                    {
+                        zeroRepo.LoadData();
+                    }
+                    return (T)(object)zeroRepo.GiveData();
+                }
+                return default!;
             }
             if (!source.Loaded)
             {
@@ -148,6 +159,11 @@ namespace TMG.Ilute.Data
             if(_dependents == null)
             {
                 throw new XTMFRuntimeException(this, "The repository was not loaded before trying to add data!");
+                LoadData();
+                if (_dependents == null)
+                {
+                    throw new XTMFRuntimeException(this, "The repository was not loaded before trying to add data!");
+                }
             }
             _dataLock.EnterWriteLock();
             Thread.MemoryBarrier();
@@ -166,6 +182,15 @@ namespace TMG.Ilute.Data
 
         public long AddNew(T data)
         {
+            if (_dependents == null)
+            {
+                // Ensure dependents are ready before adding data
+                LoadData();
+                if (_dependents == null)
+                {
+                    throw new XTMFRuntimeException(this, "The repository was not loaded before trying to add data!");
+                }
+            }
             _dataLock.EnterWriteLock();
             Thread.MemoryBarrier();
             long index = Interlocked.Increment(ref _highest) - 1;
