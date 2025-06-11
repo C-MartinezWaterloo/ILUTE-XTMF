@@ -51,7 +51,7 @@ namespace TMG.Ilute.Data
         {
             if (source == null)
             {
-                throw new XTMFRuntimeException(typeof(Repository), "Null data source passed to GetRepository");
+                throw new XTMFRuntimeException(null, "Null data source passed to GetRepository");
             }
             if (!source.Loaded)
             {
