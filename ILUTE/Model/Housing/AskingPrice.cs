@@ -174,7 +174,9 @@ namespace TMG.Ilute.Model.Housing
             var ctZone = seller.Zone;
             if (ctZone <= 0)
             {
-                throw new XTMFRuntimeException(this, "Found a dwelling that is not linked to a zone!");
+                ctZone = 0;
+                // throw new XTMFRuntimeException(this, "Found a dwelling that is not linked to a zone!");
+                
             }
 
             float avgDistToRegionalTransitKM = 0f;
