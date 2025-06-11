@@ -24,6 +24,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TMG.Ilute.Data.Demographics;
+using TMG.Ilute.Data.Mock;
 using XTMF;
 
 namespace TMG.Ilute.Data
@@ -49,6 +50,20 @@ namespace TMG.Ilute.Data
         /// <returns>The now loaded data source's data</returns>
         public static T GetRepository<T>(IDataSource<T> source)
         {
+            if (source == null)
+            {
+                // When a data source is missing, fall back to a zero repository
+                if (typeof(T) == typeof(Repository<FloatData>))
+                {
+                    var zeroRepo = new ZeroRepository();
+                    if (!zeroRepo.Loaded)
+                    {
+                        zeroRepo.LoadData();
+                    }
+                    return (T)(object)zeroRepo.GiveData();
+                }
+                return default!;
+            }
             if (!source.Loaded)
             {
                 source.LoadData();
