@@ -156,9 +156,14 @@ namespace TMG.Ilute.Data
             {
                 throw new XTMFRuntimeException(this, "Error trying to add a new element with a null for data.");
             }
-            if(_dependents == null)
+            if (_dependents == null)
             {
-                throw new XTMFRuntimeException(this, "The repository was not loaded before trying to add data!");
+                // Attempt to load the repository so dependents are initialized
+                LoadData();
+                if (_dependents == null)
+                {
+                    throw new XTMFRuntimeException(this, "The repository was not loaded before trying to add data!");
+                }
             }
             _dataLock.EnterWriteLock();
             Thread.MemoryBarrier();
@@ -177,6 +182,15 @@ namespace TMG.Ilute.Data
 
         public long AddNew(T data)
         {
+            if (_dependents == null)
+            {
+                // Ensure dependents are ready before adding data
+                LoadData();
+                if (_dependents == null)
+                {
+                    throw new XTMFRuntimeException(this, "The repository was not loaded before trying to add data!");
+                }
+            }
             _dataLock.EnterWriteLock();
             Thread.MemoryBarrier();
             long index = Interlocked.Increment(ref _highest) - 1;
