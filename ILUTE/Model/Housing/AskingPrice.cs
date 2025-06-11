@@ -74,6 +74,8 @@ namespace TMG.Ilute.Model.Housing
         public void AfterMonthlyExecute(int currentYear, int month)
         {
             _averageDwellingValueByZone = null;
+
+            _averageDwellingValueByZone = new Dictionary<int, float>();
         }
 
         public void AfterYearlyExecute(int currentYear)
@@ -105,8 +107,17 @@ namespace TMG.Ilute.Model.Housing
             _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
             _unemployment = Repository.GetRepository(UnemploymentByZone);
             _distanceToRegionalTransit = Repository.GetRepository(DistanceToRegionalTransit);
+
+            if (_averageDwellingValueByZone == null)
+            {
+                // In case the per-month reset occurred without a yearly
+                // initialization, ensure the dictionary exists before
+                // computing averages.
+                _averageDwellingValueByZone = new Dictionary<int, float>();
+            }
             AverageDwellingValueByZone(new Date(currentYear, month));
         }
+        
 
 
         /// <summary>
