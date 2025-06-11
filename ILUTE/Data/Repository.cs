@@ -49,6 +49,10 @@ namespace TMG.Ilute.Data
         /// <returns>The now loaded data source's data</returns>
         public static T GetRepository<T>(IDataSource<T> source)
         {
+            if (source == null)
+            {
+                throw new XTMFRuntimeException(typeof(Repository), "Null data source passed to GetRepository");
+            }
             if (!source.Loaded)
             {
                 source.LoadData();
