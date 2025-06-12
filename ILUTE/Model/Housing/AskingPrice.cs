@@ -55,6 +55,11 @@ namespace TMG.Ilute.Model.Housing
         [SubModelInformation(Required = true, Description = "The repository of all dwellings.")]
         public IDataSource<Repository<Dwelling>> Dwellings;
 
+        [SubModelInformation(Required = false, Description = "Optional log output for asking prices.")]
+        public IDataSource<ExecutionLog> LogSource;
+
+
+
 
         private Repository<LandUse> _landUse;
         private Repository<FloatData> _distanceToSubway;
@@ -174,6 +179,13 @@ namespace TMG.Ilute.Model.Housing
 
             (var askingPrice, var minPrice) = DwellingPrice(seller);
             float decayedPrice = askingPrice * (float)Math.Pow(ASKING_PRICE_FACTOR_DECREASE, monthsOnMarket);
+
+            if (LogSource != null)
+            {
+                Repository.GetRepository(LogSource)
+                    .WriteToLog($"Asking price for dwelling {seller.Id} is {decayedPrice:F2}");
+            }
+
 
             return (decayedPrice, minPrice);
         }

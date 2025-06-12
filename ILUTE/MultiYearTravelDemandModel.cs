@@ -50,6 +50,11 @@ namespace TMG.Ilute
         public float Progress { get; set; }
 
         public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
+       
+        /// <summary>
+        /// Simple indicator that can be checked by XTMF after the run.
+        /// </summary>
+        public int Result { get; private set; }
 
         [SubModelInformation(Required = true, Description = "The zone system the model will use.")]
         public IZoneSystem ZoneSystem { get; set; }
@@ -125,6 +130,8 @@ namespace TMG.Ilute
                 _status = () => PostRun[i].ToString();
                 PostRun[i].Start();
             }
+            // Signal that the run completed successfully
+            Result = 0;
             ZoneSystem.UnloadData();
         }
 

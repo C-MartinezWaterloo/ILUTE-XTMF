@@ -26,6 +26,7 @@ using TMG.Ilute.Data;
 using TMG.Ilute.Data.Demographics;
 using TMG.Ilute.Data.Housing;
 using TMG.Ilute.Data.Spatial;
+using TMG.Ilute.Model.Utilities;
 using TMG.Input;
 using XTMF;
 
@@ -47,6 +48,10 @@ namespace TMG.Ilute.Model.Housing
 
         [SubModelInformation(Required = true, Description = "The repository of households.")]
         public IDataSource<Repository<Household>> Households;
+
+        [SubModelInformation(Required = false, Description = "Optional log output for bids.")]
+        public IDataSource<ExecutionLog> LogSource;
+
 
         public void AfterMonthlyExecute(int currentYear, int month)
         {
@@ -153,8 +158,15 @@ namespace TMG.Ilute.Model.Housing
             // Final bid: income-based floor vs. environment/location adjusted ceiling
             float bid = Math.Min(proximityDiscount, baseBid + spaceValue + openBonus - industrialPenalty);
 
-            // Never bid less than a minimum threshold
-            return Math.Max(bid, 0.2f * income); // Don’t offer less than 20% of income
+            bid = Math.Max(bid, 0.2f * income); // Don’t offer less than 20% of income
+
+            if (LogSource != null)
+            {
+                Repository.GetRepository(LogSource)
+                    .WriteToLog($"Bid by household {buyer.Id} on dwelling {seller.Id} is {bid:F2}");
+            }
+
+            return bid;
         }
 
         public void RunFinished(int finalYear)
