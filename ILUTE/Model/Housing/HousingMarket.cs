@@ -52,6 +52,9 @@ namespace TMG.Ilute.Model.Housing
         [SubModelInformation(Required = true, Description = "The source of people in the model.")]
         public IDataSource<Repository<Person>> PersonRepository;
 
+        [SubModelInformation(Required = true, Description = "The log to save the write to.")]
+        public IDataSource<ExecutionLog> LogSource;
+
         #region Parameters
         private const float RES_MOBILITY_SCALER = 0.5F;
         // From MA Habib pg 46:
