@@ -135,6 +135,15 @@ namespace TMG.Ilute.Model.Housing
             _currencyManager = CurrencyManager.GiveData();
             BidModel.AfterYearlyExecute(currentYear); // Nothing
             AskingPrices.AfterYearlyExecute(currentYear); // Nothing 
+
+            if(_boughtDwellings > 0)
+            {
+                var average = _totalSalePrice / _boughtDwellings;
+                Repository.GetRepository(LogSource)
+                    .WriteToLog($"Year {currentYear} sold {_boughtDwellings} homes for {_totalSalePrice} average {average:F2}.");
+            }
+
+
         }
 
         public void BeforeFirstYear(int firstYear)
@@ -455,6 +464,10 @@ namespace TMG.Ilute.Model.Housing
             seller.Value = new Money(transactionPrice, _currentTime);
             // Clearing the listing date when sold
             seller.ListingDate = null;
+            _boughtDwellings++;
+            _totalSalePrice += transactionPrice;
+            Repository.GetRepository(LogSource)
+                .WriteToLog($"Sold dwelling {seller.Id} for {transactionPrice} in year {_currentTime.Year}.");
         }
 
         [RunParameter("Choice Set Size", 10, "The size of the choice set for the buyer for each dwelling class.")]
