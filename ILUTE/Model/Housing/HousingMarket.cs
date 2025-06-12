@@ -111,13 +111,23 @@ namespace TMG.Ilute.Model.Housing
 
         public List<string> Headers => new List<string>() { "DwellingsSold", "HouseholdsRemaining", "DwellingsRemaining", "AverageSalePrice" };
 
-        public List<float> YearlyResults => new List<float>()
+
+        public List<float> YearlyResults
         {
-            _boughtDwellings,
-            _remainingHouseholds.Count,
-            _remainingDwellings.Count,
-            (float)(_totalSalePrice / _boughtDwellings)
-        };
+            get
+            {
+                var average = _boughtDwellings > 0 ?
+                    (float)(_totalSalePrice / _boughtDwellings) : 0f;
+                return new List<float>()
+                {
+                    _boughtDwellings,
+                    _remainingHouseholds.Count,
+                    _remainingDwellings.Count,
+                    average
+                };
+            }
+        }
+
 
         public void AfterMonthlyExecute(int currentYear, int month)
         {
@@ -134,16 +144,11 @@ namespace TMG.Ilute.Model.Housing
             }
             _currencyManager = CurrencyManager.GiveData();
             BidModel.AfterYearlyExecute(currentYear); // Nothing
-            AskingPrices.AfterYearlyExecute(currentYear); // Nothing 
-
-            if(_boughtDwellings > 0)
-            {
-                var average = _totalSalePrice / _boughtDwellings;
-                Repository.GetRepository(LogSource)
-                    .WriteToLog($"Year {currentYear} sold {_boughtDwellings} homes for {_totalSalePrice} average {average:F2}.");
-            }
-
-
+            AskingPrices.AfterYearlyExecute(currentYear); // Nothing
+            var average = _boughtDwellings > 0 ?
+                _totalSalePrice / _boughtDwellings : 0f;
+            Repository.GetRepository(LogSource)
+                .WriteToLog($"Year {currentYear} sold {_boughtDwellings} homes for {_totalSalePrice} average {average:F2}.");
         }
 
         public void BeforeFirstYear(int firstYear)
@@ -175,7 +180,6 @@ namespace TMG.Ilute.Model.Housing
             _currentTime = new Date(currentYear, month);
             // create the random seed for this execution of the housing market and start
             var r = new Rand((uint)(currentYear * RandomSeed + month));
-
             AskingPrices.Execute(currentYear, month);
             BidModel.Execute(currentYear, month);
             Execute(r, currentYear, month);
