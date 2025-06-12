@@ -363,6 +363,8 @@ namespace TMG.Ilute.Model.Housing
             // Wait for all of the buyers to be processed.
             _buyersReady.Wait();
             Interlocked.MemoryBarrier();
+
+            // For each combination of dwelling type and bedroom count, an empty list is created
             int length = DwellingCategories * MaxBedrooms;
 
             // is the main result: a list of lists, where each inner list holds sellers in a specific category (e.g., 2-bedroom rental apartments).
@@ -371,9 +373,9 @@ namespace TMG.Ilute.Model.Housing
             {
                 ret.Add(new List<SellerValue>());
             }
-            // Get all of the empty dwellings
+            // This list contains homes owned by houshold who intend to sell.
             var dwellings = Repository.GetRepository(DwellingRepository);
-            // Get all of the empty dwellings, dwellings of people currently moving, or households who have already moved.
+            // Candidates are dwellings that exist and currently have no houshold, this is added to _monthlyBuyerCurrentDwellings from before
             var candidates = dwellings.Where(d => d.Exists && (d.Household == null)).Union(_monthlyBuyerCurrentDwellings);
             // sort the candidates into the proper lists
             foreach (var d in candidates)

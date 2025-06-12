@@ -34,6 +34,9 @@ namespace TMG.Ilute.Model.Utilities
         [RunParameter("MaxIterations", 20, "The maximum number of market clearing iterations to perform.")]
         public int MaxIterations;
 
+
+        // Each seller is represented by a SellerValue
+
         public struct SellerValue
         {
             internal readonly Seller Unit;
