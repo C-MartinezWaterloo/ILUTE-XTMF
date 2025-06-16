@@ -58,9 +58,6 @@ namespace TMG.Ilute.Model.Housing
         [SubModelInformation(Required = false, Description = "Optional log output for asking prices.")]
         public IDataSource<ExecutionLog> LogSource;
 
-
-
-
         private Repository<LandUse> _landUse;
         private Repository<FloatData> _distanceToSubway;
         private Repository<FloatData> _distanceToRegionalTransit;
