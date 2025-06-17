@@ -167,6 +167,7 @@ Household:
                         householdRepo.AddNew(dwellingid, h);
                         dwellingRepo.AddNew(dwellingid, d);
                         h.Dwelling = d;
+                        d.Household = h;
                         h.HouseholdType = ConvertHouseholdType(hhcomp);
                         d.Exists = true;
                         d.Zone = zoneSystem.GetFlatIndex(ctcode);

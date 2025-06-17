@@ -182,6 +182,10 @@ namespace TMG.Ilute.Model.Housing
             AskingPrices.BeforeFirstYear(firstYear);
             SupplyModule?.BeforeFirstYear(firstYear);
 
+            // reset tracking information for buyers and sellers
+            _buyerDurations = new Dictionary<long, int>();
+            _sellerDurations = new Dictionary<long, int>();
+
         }
 
         public void BeforeMonthlyExecute(int currentYear, int month)
@@ -225,9 +229,14 @@ namespace TMG.Ilute.Model.Housing
             _currentTime = new Date(currentYear, month);
             // create the random seed for this execution of the housing market and start
             var r = new Rand((uint)(currentYear * RandomSeed + month));
+            var log = Repository.GetRepository(LogSource);
+            log?.WriteToLog($"Housing market executing {currentYear}-{month + 1}.");
+            var previousSales = _boughtDwellings;
             AskingPrices.Execute(currentYear, month);
             BidModel.Execute(currentYear, month);
             Execute(r, currentYear, month);
+            var monthlySales = _boughtDwellings - previousSales;
+            log?.WriteToLog($"Housing market {currentYear}-{month + 1} completed with {monthlySales} sales.");
 
         }
 
@@ -359,7 +368,14 @@ namespace TMG.Ilute.Model.Housing
             var lastTransactionDate = hhld.Dwelling.Value.WhenCreated;
             double yearsInDwelling = ((_currentYear * 12 + _currentMonth) - lastTransactionDate.Months) / 12;
 
-            var headAge = hhld.Families.Max(f => f.Persons.Max(p => p.Age));
+            // Determine the age of the household head. Datasets may contain
+            // families with no persons which would cause Max() to throw if not
+            // guarded. Default to zero when no ages are available.
+            var headAge = hhld.Families
+                .Where(f => f.Persons.Any())
+                .Select(f => f.Persons.Max(p => p.Age))
+                .DefaultIfEmpty(0)
+                .Max();
             var numbOfJobs = hhld.Families.Sum(f => f.Persons.Count(p => p.Jobs.Any()));
 
             int demandCounter = 0; // Determines whether a household likely needs a larger dwelling
