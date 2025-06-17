@@ -182,6 +182,10 @@ namespace TMG.Ilute.Model.Housing
             AskingPrices.BeforeFirstYear(firstYear);
             SupplyModule?.BeforeFirstYear(firstYear);
 
+            // reset tracking information for buyers and sellers
+            _buyerDurations = new Dictionary<long, int>();
+            _sellerDurations = new Dictionary<long, int>();
+
         }
 
         public void BeforeMonthlyExecute(int currentYear, int month)
@@ -220,14 +224,20 @@ namespace TMG.Ilute.Model.Housing
             _boughtDwellings = 0;
             _totalSalePrice = 0;
         }
+
         public void Execute(int currentYear, int month)
         {
             _currentTime = new Date(currentYear, month);
             // create the random seed for this execution of the housing market and start
             var r = new Rand((uint)(currentYear * RandomSeed + month));
+            var log = Repository.GetRepository(LogSource);
+            log?.WriteToLog($"Housing market executing {currentYear}-{month + 1}.");
+            var previousSales = _boughtDwellings;
             AskingPrices.Execute(currentYear, month);
             BidModel.Execute(currentYear, month);
             Execute(r, currentYear, month);
+            var monthlySales = _boughtDwellings - previousSales;
+            log?.WriteToLog($"Housing market {currentYear}-{month + 1} completed with {monthlySales} sales.");
 
         }
 
