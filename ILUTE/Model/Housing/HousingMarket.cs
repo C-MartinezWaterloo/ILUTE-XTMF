@@ -314,6 +314,7 @@ namespace TMG.Ilute.Model.Housing
         // This function will calculate the labour Force participation rate (LFPR). This measures the active portion of a economy's working age
         private float LabForcePartRateCalculation(IEnumerable<Person> personRepository)
         {
+            /*
             int workingAgePop = 0;
             int labourForce = 0;
 
@@ -322,7 +323,6 @@ namespace TMG.Ilute.Model.Housing
                 if (person.Age >= 15)
                 {
                     workingAgePop++;
-
                     // Check if the person is in the labour force (has at least one job)
                     if (person.Jobs != null && person.Jobs.Count > 0)
                     {
@@ -337,7 +337,12 @@ namespace TMG.Ilute.Model.Housing
             }
 
             return (float)labourForce / workingAgePop;
+            */
+
+            // Temporary fixed value for labour force participation rate
+            return 0.658f;
         }
+
 
 
         private bool OptIntoMarket(Rand rand, Household hhld)

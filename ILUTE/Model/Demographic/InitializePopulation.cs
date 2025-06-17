@@ -246,7 +246,17 @@ Household:
                         {
                             continue;
                         }
-                        Household h = hhldContext[dwellingId];
+   
+
+                        if (!hhldContext.TryGet(dwellingId, out Household h))
+                        {
+                            throw new XTMFRuntimeException(
+                                this,
+                                $"In '{Name}' we tried to initialize a household for dwelling {dwellingId}, but it does not exist!");
+
+                        }
+
+
                         family.Household = h;
                         h.Families.Add(family);
                         BuildFamilyStructure(family, ageM, ageF);
