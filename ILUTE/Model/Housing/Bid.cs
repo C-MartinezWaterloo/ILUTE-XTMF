@@ -133,7 +133,15 @@ namespace TMG.Ilute.Model.Housing
             var buyerDwelling = buyer.Dwelling;
 
             // Land use effects
-            var sellerLU = _censusLandUse[seller.Zone];
+            if (!_censusLandUse.TryGet(seller.Zone, out var sellerLU))
+            {
+                throw new XTMFRuntimeException(
+                    this,
+                    $"Bid model failed because zone {seller.Zone} has no Census land-use data.");
+            }
+
+
+
             float openChange = sellerLU.Open > 0 ? (float)Math.Log(sellerLU.Open) : 0f;
             float industrialChange = sellerLU.Industrial > 0 ? (float)Math.Log(sellerLU.Industrial) : 0f;
 
