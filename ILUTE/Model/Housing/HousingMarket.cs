@@ -23,6 +23,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TMG.Emme.XTMF_Internal;
 using TMG.Ilute.Data;
 using TMG.Ilute.Data.Demographics;
 using TMG.Ilute.Data.Housing;
@@ -145,10 +146,12 @@ namespace TMG.Ilute.Model.Housing
             _currencyManager = CurrencyManager.GiveData();
             BidModel.AfterYearlyExecute(currentYear); // Nothing
             AskingPrices.AfterYearlyExecute(currentYear); // Nothing
+
             var average = _boughtDwellings > 0 ?
                 _totalSalePrice / _boughtDwellings : 0f;
             Repository.GetRepository(LogSource)
                 .WriteToLog($"Year {currentYear} sold {_boughtDwellings} homes for {_totalSalePrice} average {average:F2}.");
+
         }
 
         public void BeforeFirstYear(int firstYear)
@@ -170,11 +173,24 @@ namespace TMG.Ilute.Model.Housing
         {
             BidModel.BeforeYearlyExecute(currentYear);
             AskingPrices.BeforeYearlyExecute(currentYear);
+
+            var dwellings = Repository.GetRepository(DwellingRepository);
+            var persons = Repository.GetRepository(PersonRepository);
+
+            if (persons.Count == 0)
+            {
+                throw new XTMFRuntimeException(this, "Person repository is empty.");
+            }
+
+            if (dwellings.Count == 0)
+            {
+                throw new XTMFRuntimeException(this, "Dwelling repository is empty.");
+            }
+
             // cleanup the accumulators for statistics
             _boughtDwellings = 0;
             _totalSalePrice = 0;
         }
-
         public void Execute(int currentYear, int month)
         {
             _currentTime = new Date(currentYear, month);
