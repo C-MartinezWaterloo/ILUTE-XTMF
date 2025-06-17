@@ -180,10 +180,27 @@ namespace TMG.Ilute.Model.Housing
         // Summing up the houshold income
         private float GetHouseholdIncome(Household household)
         {
-            return Math.Max(
-                household.Families.Sum(f => f.Persons.Sum(p => p.Jobs.Sum(j => j.Salary.Amount))),
-                10000f // floor to prevent zero-income edge cases
-            );
+
+            float income = 0f;
+            foreach (var family in household.Families)
+            {
+                foreach (var person in family.Persons)
+                {
+                    foreach (var job in person.Jobs)
+                    {
+                        income += job.Salary.Amount;
+                    }
+                }
+            }
+
+            // floor to prevent zero-income edge cases
+            if (income < 10000f)
+            {
+                income = 10000f;
+            }
+            return income;
+
+
         }
 
     }
