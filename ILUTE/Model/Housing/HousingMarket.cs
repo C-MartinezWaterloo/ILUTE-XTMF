@@ -43,6 +43,11 @@ namespace TMG.Ilute.Model.Housing
         [SubModelInformation(Required = true, Description = "The model to predict the asking price for a sale.")]
         public ISelectSaleValue<Dwelling> AskingPrices;
 
+        // Optional module that adds new dwellings to the repository each year
+        [SubModelInformation(Required = false, Description = "Generates new dwellings each year before the market runs.")]
+        public HousingSupply SupplyModule;
+
+
         [SubModelInformation(Required = true, Description = "A source of dwellings in the model.")]
         public IDataSource<Repository<Dwelling>> DwellingRepository;
 
@@ -148,6 +153,8 @@ namespace TMG.Ilute.Model.Housing
             BidModel.AfterYearlyExecute(currentYear);
             AskingPrices.AfterYearlyExecute(currentYear);
 
+            SupplyModule?.AfterYearlyExecute(currentYear);
+
             // compute average sale price
             var average = _boughtDwellings > 0
                 ? _totalSalePrice / _boughtDwellings
@@ -175,6 +182,8 @@ namespace TMG.Ilute.Model.Housing
         {
             BidModel.BeforeFirstYear(firstYear);
             AskingPrices.BeforeFirstYear(firstYear);
+            SupplyModule?.BeforeFirstYear(firstYear);
+
         }
 
         public void BeforeMonthlyExecute(int currentYear, int month)
@@ -204,6 +213,11 @@ namespace TMG.Ilute.Model.Housing
                 throw new XTMFRuntimeException(this, "Dwelling repository is empty.");
             }
 
+            // Execute optional supply generator for the year
+            SupplyModule?.BeforeYearlyExecute(currentYear);
+            SupplyModule?.Execute(currentYear);
+
+
             // cleanup the accumulators for statistics
             _boughtDwellings = 0;
             _totalSalePrice = 0;
@@ -223,6 +237,7 @@ namespace TMG.Ilute.Model.Housing
         {
             BidModel.RunFinished(finalYear);
             AskingPrices.RunFinished(finalYear);
+            SupplyModule?.RunFinished(finalYear);
         }
 
         [RunParameter("Max Bedrooms", 7, "The maximum number of bedrooms to consider.")]
