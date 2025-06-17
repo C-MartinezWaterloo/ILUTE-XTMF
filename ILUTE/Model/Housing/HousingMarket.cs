@@ -47,7 +47,6 @@ namespace TMG.Ilute.Model.Housing
         [SubModelInformation(Required = false, Description = "Generates new dwellings each year before the market runs.")]
         public HousingSupply SupplyModule;
 
-
         [SubModelInformation(Required = true, Description = "A source of dwellings in the model.")]
         public IDataSource<Repository<Dwelling>> DwellingRepository;
 
@@ -152,7 +151,6 @@ namespace TMG.Ilute.Model.Housing
 
             BidModel.AfterYearlyExecute(currentYear);
             AskingPrices.AfterYearlyExecute(currentYear);
-
             SupplyModule?.AfterYearlyExecute(currentYear);
 
             // compute average sale price
