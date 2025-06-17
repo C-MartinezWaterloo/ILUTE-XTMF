@@ -597,7 +597,7 @@ namespace TMG.Ilute.Model.Housing
                         var sellerIndex = (int)(sellerRow.Count * rand.NextFloat());
                         var toCheck = sellerRow[sellerIndex];
                         var price = BidModel.GetPrice(buyer, toCheck.Unit, toCheck.AskingPrice);
-                        if (sellerIndex >= retRow.Count || sellerIndex < 0)
+                        if (sellerIndex >= sellerRow.Count || sellerIndex < 0)
                         {
                             throw new XTMFRuntimeException(this, "We found an out of bounds issue when selecting sellers.");
                         }
