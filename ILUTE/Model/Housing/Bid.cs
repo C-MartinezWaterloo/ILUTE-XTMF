@@ -160,12 +160,6 @@ namespace TMG.Ilute.Model.Housing
 
             bid = Math.Max(bid, 0.2f * income); // Don’t offer less than 20% of income
 
-            if (LogSource != null)
-            {
-                Repository.GetRepository(LogSource)
-                    .WriteToLog($"Bid by household {buyer.Id} on dwelling {seller.Id} is {bid:F2}");
-            }
-
             return bid;
         }
 
