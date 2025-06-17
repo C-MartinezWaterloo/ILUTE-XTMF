@@ -144,15 +144,32 @@ namespace TMG.Ilute.Model.Housing
                 CurrencyManager.LoadData();
             }
             _currencyManager = CurrencyManager.GiveData();
-            BidModel.AfterYearlyExecute(currentYear); // Nothing
-            AskingPrices.AfterYearlyExecute(currentYear); // Nothing
 
-            var average = _boughtDwellings > 0 ?
-                _totalSalePrice / _boughtDwellings : 0f;
-            Repository.GetRepository(LogSource)
-                .WriteToLog($"Year {currentYear} sold {_boughtDwellings} homes for {_totalSalePrice} average {average:F2}.");
+            BidModel.AfterYearlyExecute(currentYear);
+            AskingPrices.AfterYearlyExecute(currentYear);
 
-        }
+            // compute average sale price
+            var average = _boughtDwellings > 0
+                ? _totalSalePrice / _boughtDwellings
+                : 0f;
+
+            // grab your repositories
+            var dwellings = Repository.GetRepository(DwellingRepository);
+            var persons = Repository.GetRepository(PersonRepository);
+            var log = Repository.GetRepository(LogSource);
+
+            // log counts
+            log.WriteToLog($"There are {dwellings.Count} dwellings and {persons.Count} persons.");
+
+            // log sales summary
+            log.WriteToLog(
+                $"Year {currentYear} sold {_boughtDwellings} homes " +
+                $"for a total of {_totalSalePrice}, average {average:F2}."
+            );
+
+
+                }
+
 
         public void BeforeFirstYear(int firstYear)
         {
