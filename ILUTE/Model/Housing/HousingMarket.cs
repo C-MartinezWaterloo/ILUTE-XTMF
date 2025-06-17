@@ -359,7 +359,16 @@ namespace TMG.Ilute.Model.Housing
             var lastTransactionDate = hhld.Dwelling.Value.WhenCreated;
             double yearsInDwelling = ((_currentYear * 12 + _currentMonth) - lastTransactionDate.Months) / 12;
 
-            var headAge = hhld.Families.Max(f => f.Persons.Max(p => p.Age));
+            // Determine the age of the household head. Datasets may contain
+            // families with no persons which would cause Max() to throw if not
+            // guarded. Default to zero when no ages are available.
+            var headAge = hhld.Families
+                .Where(f => f.Persons.Any())
+                .Select(f => f.Persons.Max(p => p.Age))
+                .DefaultIfEmpty(0)
+                .Max();
+
+
             var numbOfJobs = hhld.Families.Sum(f => f.Persons.Count(p => p.Jobs.Any()));
 
             int demandCounter = 0; // Determines whether a household likely needs a larger dwelling
