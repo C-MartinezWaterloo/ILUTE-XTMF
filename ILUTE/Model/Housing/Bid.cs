@@ -135,9 +135,8 @@ namespace TMG.Ilute.Model.Housing
             // Land use effects
             if (!_censusLandUse.TryGet(seller.Zone, out var sellerLU))
             {
-                throw new XTMFRuntimeException(
-                    this,
-                    $"Bid model failed because zone {seller.Zone} has no Census land-use data.");
+                // Default to zero-values when data is missing so bidding can continue
+                sellerLU = new LandUse(seller.Zone, 0, 0, 0, 0);
             }
 
 
