@@ -245,17 +245,22 @@ namespace TMG.Ilute.Model.Housing
             // Distinguish between high rise and low rise 
 
             // units are likely in $100,000 with the dollar likely from 2003-2004. This is based on the seller type data shown above.
-            double price = 4.0312
-                + 0.07625 * seller.Rooms
-                - 0.0067 * avgDistToSubwayKM
-                - 0.00163 * avgDistToRegionalTransitKM
-                + 0.00016 * landUse.Residential
-                - 0.00021 * landUse.Commerce
-                /*- 0.00183 * myZone.UnEmplRate
-                - 0.3746 * myZone.AvgPplPerRoom
-                + 0.00151 * AvgCTDwellingValue
-                + 0.00288 * AvgSalePriceForThisType
-                - 0.00189 * myZone.AvgDaysListedOnMarket*/;
+            double logPrice = 4.0312
+           + 0.07625 * seller.Rooms
+           - 0.0067 * avgDistToSubwayKM
+           - 0.00163 * avgDistToRegionalTransitKM
+           + 0.00016 * landUse.Residential
+           - 0.00021 * landUse.Commerce
+    /*- 0.00183 * myZone.UnEmplRate
+    - 0.3746 * myZone.AvgPplPerRoom
+    + 0.00151 * AvgCTDwellingValue
+    + 0.00288 * AvgSalePriceForThisType
+    - 0.00189 * myZone.AvgDaysListedOnMarket*/;
+
+            // Convert from log-price to dollars.  The multiplication by 100000
+            // matches the units used for the average sale prices above.
+            double price = Math.Exp(logPrice) * 100000.0;
+
             return ((float)price, 0f);
         }
 

@@ -4,6 +4,11 @@
       "commandName": "Executable",
       "executablePath": "F:\\Summer 2025\\TravelModellingGroup\\XTMF-Dev\\XTMF.Gui.exe",
       "nativeDebugging": true
+    },
+    "Profile Code": {
+      "commandName": "Executable",
+      "executablePath": "F:\\Summer 2025\\TravelModellingGroup\\XTMF-Dev\\XTMF.Run.exe",
+      "commandLineArgs": "\"Ilute 2.0\" \"Ilute Pipe\" \"per\""
     }
   }
 }

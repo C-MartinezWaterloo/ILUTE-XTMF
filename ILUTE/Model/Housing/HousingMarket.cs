@@ -269,17 +269,17 @@ namespace TMG.Ilute.Model.Housing
 
         //  Thread-safe collection of households that want a larger home
 
-        private ConcurrentBag<long> _demandLargerDwelling;
+        private HashSet<long> _demandLargerDwelling;
 
 
         // Returns a list of households who are active buyers this month
 
         protected override List<Household> GetBuyers(Rand rand)
         {
-            _demandLargerDwelling = new ConcurrentBag<long>();
+            _demandLargerDwelling = new HashSet<long>();
             try
             {
-                var buyers = new List<Household>();
+                var buyers = new HashSet<Household>();
                 foreach (var dwelling in Repository.GetRepository(DwellingRepository))
                 {
                     var hhld = dwelling.Household;
@@ -295,11 +295,12 @@ namespace TMG.Ilute.Model.Housing
                         else if (OptIntoMarket(rand, hhld))
                         {
                             _monthlyBuyerCurrentDwellings.Add(dwelling);
-                            if (!buyers.Contains(hhld)) buyers.Add(hhld);
+                            buyers.Add(hhld);
+                            
                         }
                     }
                 }
-                return buyers;
+                return buyers.ToList();
             }
             finally
             {
