@@ -579,7 +579,7 @@ namespace TMG.Ilute.Model.Housing
                     var sellerRow = sellers[index];
 
                     // If fewer sellers than the choice set size, bid on everyone. ChoiceSetSize = 10. 
-                    if (sellerRow.Count < ChoiceSetSize)
+                    if (sellerRow.Count <= ChoiceSetSize)
                     {
                         // For all sellers in this category, convert each one into a Bid for this buyer, then store all those bids in the return list for this household category.
                         // Since we have fewer sellers than the choice set size, take them all and stop looking at other room sizes.
@@ -587,15 +587,26 @@ namespace TMG.Ilute.Model.Housing
                         retRow.AddRange(sellerRow.Select((seller, i) => new Bid(BidModel.GetPrice(buyer, seller.Unit, seller.AskingPrice), i)));
                         break;
                     }
-                    var attempts = 0;
+
+                    // Randomly permute seller indices and evaluate them until enough valid bids are found
+                    int count = sellerRow.Count;
+                    int[] indices = new int[count];
+                    for (int i = 0; i < count; i++) indices[i] = i;
 
 
-                       // keep looping until you have enough bids
-                       // retRow is for a single category
-                    while (retRow.Count < ChoiceSetSize && attempts++ < ChoiceSetSize * 2)
+                    // keep looping until you have enough bids
+                    // retRow is for a single category
+                    for (int i = 0; i < count && retRow.Count < ChoiceSetSize; i++)
                     {
                         // sellerIndex picks a random house
-                        var sellerIndex = (int)(sellerRow.Count * rand.NextFloat());
+                      
+
+                        int swap = i + (int)((count - i) * rand.NextFloat());
+                        int tmp = indices[i];
+                        indices[i] = indices[swap];
+                        indices[swap] = tmp;
+                        int sellerIndex = indices[i];
+
                         var toCheck = sellerRow[sellerIndex];
                         var price = BidModel.GetPrice(buyer, toCheck.Unit, toCheck.AskingPrice);
                         if (sellerIndex >= sellerRow.Count || sellerIndex < 0)

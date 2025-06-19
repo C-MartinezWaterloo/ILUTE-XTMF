@@ -32,7 +32,12 @@ namespace TMG.Ilute.Model.Utilities
 
     public sealed class CurrencyManager : IDataSource<CurrencyManager>
     {
-        [SubModelInformation(Required = false, Description = "Inflation rate per year.")]
+
+        // Inflation rates can be prpovided for each month using a TemporalDataLoader. The array index corresponds to the number of months since year zero.
+        [SubModelInformation(Required = false, Description = "Inflation rate by month.")]
+
+
+
         public IDataSource<SparseArray<float>> TemperalDataLoader;
 
         private SparseArray<float> _inflationRateByMonth;
@@ -42,15 +47,15 @@ namespace TMG.Ilute.Model.Utilities
         public string Name { get; set; }
 
         /// <summary>
-        /// Convert the money to a value for the given year.
+        /// Convert the money to a value for the given month.
         /// </summary>
         /// <param name="money">The original money object</param>
-        /// <param name="date">The year to convert it to.</param>
+        /// <param name="date">The month (as a Date) to convert it to.</param>
         /// <returns>A new money object for the given date</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 
 
-        public Money ConvertToYear(Money money, Date date)
+        public Money ConvertToDate(Money money, Date date)
         {
             // If no inflation data is loaded, return the original amount for the target year
             if (_inflationRateByMonth == null)
@@ -60,6 +65,15 @@ namespace TMG.Ilute.Model.Utilities
 
             // apply 0 inflation for now once we have some inflation tables use those instead.
             return new Money(money.Amount * (GetRate(money.WhenCreated) / GetRate(date)), date);
+        }
+
+        /// <summary>
+        /// Compatibility wrapper for older modules that convert by year.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Money ConvertToYear(Money money, Date date)
+        {
+            return ConvertToDate(money, date);
         }
 
         /// <summary>

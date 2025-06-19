@@ -44,6 +44,12 @@ namespace TMG.Ilute.Model.Housing
         public IDataSource<Repository<LandUse>> CensusLandUse;
         private Repository<LandUse> _censusLandUse;
 
+        [SubModelInformation(Required = false, Description = "Currency conversion utilities.")]
+        public IDataSource<CurrencyManager> CurrencyManager;
+        private CurrencyManager _currencyManager;
+
+        private Date _currentDate;
+
         private ConcurrentDictionary<int, float> _unemploymentByZone;
 
         [SubModelInformation(Required = true, Description = "The repository of households.")]
@@ -67,6 +73,10 @@ namespace TMG.Ilute.Model.Housing
             try
             {
                 _censusLandUse = Repository.GetRepository(CensusLandUse);
+                if (CurrencyManager != null)
+                {
+                    _currencyManager = Repository.GetRepository(CurrencyManager);
+                }
             }
 
             catch (XTMFRuntimeException e)
@@ -83,11 +93,16 @@ namespace TMG.Ilute.Model.Housing
 
         public void BeforeMonthlyExecute(int currentYear, int month)
         {
+            _currentDate = new Date(currentYear, month);
         }
 
         public void BeforeYearlyExecute(int currentYear)
         {
             ComputeUnemploymentByZone();
+            if (_currencyManager == null && CurrencyManager != null)
+            {
+                _currencyManager = Repository.GetRepository(CurrencyManager);
+            }
         }
 
         private void ComputeUnemploymentByZone()
@@ -195,7 +210,12 @@ namespace TMG.Ilute.Model.Housing
                 {
                     foreach (var job in person.Jobs)
                     {
-                        income += job.Salary.Amount;
+                        var salary = job.Salary.Amount;
+                        if (_currencyManager != null)
+                        {
+                            salary = _currencyManager.ConvertToDate(job.Salary, _currentDate).Amount;
+                        }
+                        income += salary;
                     }
                 }
             }

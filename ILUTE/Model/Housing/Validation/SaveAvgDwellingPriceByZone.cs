@@ -86,12 +86,13 @@ namespace TMG.Ilute.Model.Housing.Validation
                                      select new
                                      {
                                          Zone = g.Key,
-                                         AvgPrice = g.Average(d => currencyManager.ConvertToYear(d.Value, new Date(currentYear, 0)).Amount),
-                                         MedianPrice = Median(g, d => currencyManager.ConvertToYear(d.Value, new Date(currentYear, 0)).Amount),
+                                         AvgPrice = g.Average(d => currencyManager.ConvertToDate(d.Value, new Date(currentYear, 0)).Amount),
+                                         MedianPrice = Median(g, d => currencyManager.ConvertToDate(d.Value, new Date(currentYear, 0)).Amount),
                                          NumberOfDwellings = g.Count(),
-                                         MinPrice = g.Min(d => currencyManager.ConvertToYear(d.Value, new Date(currentYear, 0)).Amount),
-                                         MaxPrice = g.Max(d => currencyManager.ConvertToYear(d.Value, new Date(currentYear, 0)).Amount)
+                                         MinPrice = g.Min(d => currencyManager.ConvertToDate(d.Value, new Date(currentYear, 0)).Amount),
+                                         MaxPrice = g.Max(d => currencyManager.ConvertToDate(d.Value, new Date(currentYear, 0)).Amount)
                                      })
+                                  
             {
                 _writer.WriteLine($"{currentYear},{zoneData.Zone},{zoneData.NumberOfDwellings},{zoneData.AvgPrice},{zoneData.MedianPrice},{zoneData.MinPrice},{zoneData.MaxPrice}");
             }
