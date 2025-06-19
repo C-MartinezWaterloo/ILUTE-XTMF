@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using TMG.Ilute.Data;
 using TMG.Ilute.Data.Demographics;
 using TMG.Ilute.Data.Housing;
+using TMG.Ilute.Data.LabourForce;
 using TMG.Ilute.Data.Spatial;
 using TMG.Ilute.Model.Utilities;
 using TMG.Input;
@@ -451,10 +452,42 @@ Household:
                             familyRepo.AddNew(familyid, personsFamily);
                         }
                         Person p;
-                        //TODO:  Finish filling out the personal information for this individual
-                        personRepo.AddNew(personid, (p = new Person() { Age = agep, Family = personsFamily, Living = true, Sex = sexp == 2 ? Sex.Male : Sex.Female }));
+
+                        // Basic personal information
+                        personRepo.AddNew(personid,
+                            (p = new Person()
+                            {
+                                Age = agep,
+                                Family = personsFamily,
+                                Living = true,
+                                Sex = sexp == 2 ? Sex.Male : Sex.Female
+                            }));
                         // add the person to their family
                         personsFamily.Persons.Add(p);
+
+                        // map labour force code to status
+                        p.LabourForceStatus = lfact switch
+                        {
+                            1 => LabourForceStatus.Employed,
+                            2 => LabourForceStatus.Unemployed,
+                            3 => LabourForceStatus.NotInLabourForce,
+                            _ => LabourForceStatus.NotApplicable
+                        };
+
+                        // create a placeholder job using personal income when available
+                        if (totincp > 0 && totincp < 999999 && p.LabourForceStatus == LabourForceStatus.Employed)
+                        {
+                            var job = new Job
+                            {
+                                Owner = p,
+                                StartDate = new Date(InitialYear - 1, 0),
+                                Salary = new Money(totincp, new Date(InitialYear, 0)),
+                                OccupationClassification = (OccupationClassification)occ81p,
+                                IndustryClassification = (IndustryClassification)ind80p
+                            };
+                            p.Jobs.Add(job);
+                        }
+
                     }
                 }
                 // fill in the rest
