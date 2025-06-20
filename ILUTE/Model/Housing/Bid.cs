@@ -167,7 +167,7 @@ namespace TMG.Ilute.Model.Housing
             // Base bid scaled to a multiple of annual income
             // Housing prices tend to be several times the buyer's yearly income,
             // so use a factor of four to better reflect market behaviour.
-            float baseBid = 4.0f * income;
+            float baseBid = 2.5f * income;
 
             // Bonus for more space (positive deltaRooms)
             float spaceValue = deltaRooms * 10000f;
@@ -182,7 +182,7 @@ namespace TMG.Ilute.Model.Housing
             // Final bid: income-based floor vs. environment/location adjusted ceiling
             float bid = Math.Min(proximityDiscount, baseBid + spaceValue + openBonus - industrialPenalty);
 
-            bid = Math.Max(bid, 1.0f * income); // Don’t offer less than 20% of income
+            bid = Math.Max(bid, 0.8f * income); // Don’t offer less than 20% of income
 
             return bid;
         }
