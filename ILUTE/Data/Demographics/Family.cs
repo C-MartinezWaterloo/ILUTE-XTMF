@@ -39,9 +39,28 @@ namespace TMG.Ilute.Data.Demographics
 
         public Date MarriageDate { get; set; }
 
+        /// <summary>
+        /// Total money saved by the family across years
+        /// </summary>
+        public float Savings { get; set; }
+
+        /// <summary>
+        /// Cash and other liquid assets held by the family
+        /// </summary>
+        public float LiquidAssets { get; set; }
+
+        /// <summary>
+        /// Assets that are not readily convertible to cash (e.g., vehicles, property)
+        /// </summary>
+        public float NonLiquidAssets { get; set; }
+
+
         public Family()
         {
             Persons = new List<Person>(2);
+            Savings = 0f;
+            LiquidAssets = 0f;
+            NonLiquidAssets = 0f;
         }
 
         public override void BeingRemoved()

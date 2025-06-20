@@ -143,7 +143,7 @@ namespace TMG.Ilute.Model.Housing
         public float GetPrice(Household buyer, Dwelling seller, float askingPrice)
         {
 
-            // This calculates the bid amoujnt that a simulated buyer would offer to purchase a dwelling
+            // This calculates the bid amount that a simulated buyer would offer to purchase a dwelling
             float income = GetHouseholdIncome(buyer);
             var buyerDwelling = buyer.Dwelling;
 
@@ -153,8 +153,6 @@ namespace TMG.Ilute.Model.Housing
                 // Default to zero-values when data is missing so bidding can continue
                 sellerLU = new LandUse(seller.Zone, 0, 0, 0, 0);
             }
-
-
 
             float openChange = sellerLU.Open > 0 ? (float)Math.Log(sellerLU.Open) : 0f;
             float industrialChange = sellerLU.Industrial > 0 ? (float)Math.Log(sellerLU.Industrial) : 0f;
