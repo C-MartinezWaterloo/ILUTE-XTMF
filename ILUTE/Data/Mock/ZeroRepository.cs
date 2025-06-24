@@ -41,28 +41,31 @@ public sealed class ZeroRepository : IDataSource<Repository<FloatData>>
 
         // SYNTAX: The Repository class is defined in Repository.cs
 
-        var zoneSystemToLoad = ZoneSystem ?? Root.ZoneSystem;
+        var zoneSystemToLoad = ZoneSystem ?? Root?.ZoneSystem;
 
-        var loaded = zoneSystemToLoad.Loaded;
-
-        if (!loaded)
+        if (zoneSystemToLoad != null)
         {
-            zoneSystemToLoad.LoadData();
+            var loaded = zoneSystemToLoad.Loaded;
 
-        }
+       
 
-        var zoneSystem = zoneSystemToLoad.GiveData()
-            ?? throw new XTMFRuntimeException(this, "Unable to load zone system!");
+            if (!loaded)
+            {
+                zoneSystemToLoad.LoadData();
+            }
 
-        if (!loaded)
-        {
-            zoneSystemToLoad.UnloadData();
-        }
+            var zoneSystem = zoneSystemToLoad.GiveData()
+                    ?? throw new XTMFRuntimeException(this, "Unable to load zone system!");
 
+            if (!loaded)
+            {
+                zoneSystemToLoad.UnloadData();
+            }
 
-        foreach (var index in zoneSystem.ZoneArray.ValidIndexies())
-        {
-            data.AddNew(index, new FloatData());
+            foreach (var index in zoneSystem.ZoneArray.ValidIndexies())
+            {
+                data.AddNew(index, new FloatData());
+            }
         }
 
         _data = data;
