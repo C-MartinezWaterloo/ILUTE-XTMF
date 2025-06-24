@@ -213,6 +213,14 @@ namespace TMG.Ilute.Model.Housing
             }
 
             _beta = Solve(xtx, xty);
+
+            if (LogSource != null && now.Month % 3 == 0)
+            {
+                var log = Repository.GetRepository(LogSource);
+                int quarter = now.Month / 3 + 1;
+                string coeffs = string.Join(", ", _beta.Select(v => v.ToString("F4")));
+                log.WriteToLog($"Regression coefficients for {now.Year} Q{quarter}: {coeffs}");
+            }
         }
 
         private double[] Solve(double[,] a, double[] b)
@@ -253,6 +261,8 @@ namespace TMG.Ilute.Model.Housing
             for (int i = 0; i < n; i++) x[i] = B[i];
             return x;
         }
+
+
 
 
         /// <summary>
