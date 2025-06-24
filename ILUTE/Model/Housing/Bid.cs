@@ -107,32 +107,21 @@ namespace TMG.Ilute.Model.Housing
 
         private void ComputeUnemploymentByZone()
         {
-            var data = new Dictionary<int, (int unemployed, int totalPersons)>();
-            foreach(var hhld in Repository.GetRepository(Households))
-            {
-                if(hhld.Dwelling?.Zone is int zone)
-                {
-                    if(!data.TryGetValue(zone, out var record))
-                    {
-                        record = (0, 0);
-                    }
-                    foreach (var fam in hhld.Families)
-                    {
-                        foreach (var person in fam.Persons)
-                        {
-                            if (person.LabourForceStatus == LabourForceStatus.Unemployed)
-                            {
-                                record.unemployed++;
-                            }
-                        }
-                    }
-                    record.totalPersons += hhld.ContainedPersons;
-                    data[zone] = record;
-                }
-            }
+            var households = Repository.GetRepository(Households);
+
             _unemploymentByZone = new ConcurrentDictionary<int, float>(
-                from record in data
-                select new KeyValuePair<int, float>(record.Key, (float)record.Value.unemployed / record.Value.totalPersons)
+
+            households
+                    .Where(h => h.Dwelling?.Zone is int)
+                    .GroupBy(h => h.Dwelling.Zone)
+                    .Select(g =>
+                    {
+                        int unemployed = g.SelectMany(h => h.Families)
+                                           .SelectMany(f => f.Persons)
+                                           .Count(p => p.LabourForceStatus == LabourForceStatus.Unemployed);
+                        int totalPersons = g.Sum(h => h.ContainedPersons);
+                        return new KeyValuePair<int, float>(g.Key, (float)unemployed / totalPersons);
+                    })
             );
         }
 
@@ -145,6 +134,9 @@ namespace TMG.Ilute.Model.Housing
 
             // This calculates the bid amount that a simulated buyer would offer to purchase a dwelling
             float income = GetHouseholdIncome(buyer);
+            float savings = GetHouseholdSavings(buyer);
+            float purchasingPower = Math.Max(income, savings);
+
             var buyerDwelling = buyer.Dwelling;
 
             // Land use effects
@@ -165,7 +157,7 @@ namespace TMG.Ilute.Model.Housing
             // Base bid scaled to a multiple of annual income
             // Housing prices tend to be several times the buyer's yearly income,
             // so use a factor of four to better reflect market behaviour.
-            float baseBid = 2.5f * income;
+            float baseBid = 4.0f * purchasingPower;
 
             // Bonus for more space (positive deltaRooms)
             float spaceValue = deltaRooms * 10000f;
@@ -180,7 +172,8 @@ namespace TMG.Ilute.Model.Housing
             // Final bid: income-based floor vs. environment/location adjusted ceiling
             float bid = Math.Min(proximityDiscount, baseBid + spaceValue + openBonus - industrialPenalty);
 
-            bid = Math.Max(bid, 0.8f * income); // Don’t offer less than 20% of income
+            // Do not allow bids below the household's available funds
+            bid = Math.Max(bid, purchasingPower);
 
             return bid;
         }
@@ -203,22 +196,20 @@ namespace TMG.Ilute.Model.Housing
         private float GetHouseholdIncome(Household household)
         {
 
-            float income = 0f;
-            foreach (var family in household.Families)
-            {
-                foreach (var person in family.Persons)
+            float income = household.Families
+                .SelectMany(f => f.Persons)
+                .SelectMany(p => p.Jobs)
+                .Sum(job =>
                 {
-                    foreach (var job in person.Jobs)
-                    {
+                    
                         var salary = job.Salary.Amount;
                         if (_currencyManager != null)
                         {
                             salary = _currencyManager.ConvertToDate(job.Salary, _currentDate).Amount;
+
                         }
-                        income += salary;
-                    }
-                }
-            }
+                    return salary;
+                });
 
             // floor to prevent zero-income edge cases
             if (income < 10000f)
@@ -229,6 +220,14 @@ namespace TMG.Ilute.Model.Housing
 
 
         }
+
+        // Summing up the household savings (liquid assets)
+        private float GetHouseholdSavings(Household household)
+        {
+            return household.Families
+                .Sum(f => f.LiquidAssets);
+        }
+
 
     }
 }

@@ -76,7 +76,6 @@ namespace TMG.Ilute.Model.Housing
         public void AfterMonthlyExecute(int currentYear, int month)
         {
             _averageDwellingValueByZone = null;
-
             _averageDwellingValueByZone = new Dictionary<int, float>();
         }
 
