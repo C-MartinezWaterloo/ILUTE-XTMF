@@ -58,12 +58,33 @@ namespace TMG.Ilute.Model.Housing
         [SubModelInformation(Required = false, Description = "Optional log output for asking prices.")]
         public IDataSource<ExecutionLog> LogSource;
 
+        [SubModelInformation(Required = false, Description = "Sale records for hedonic regression.")]
+        public IDataSource<Repository<SaleRecord>> SaleRecordRepository;
+
+
         private Repository<LandUse> _landUse;
         private Repository<FloatData> _distanceToSubway;
         private Repository<FloatData> _distanceToRegionalTransit;
         private Repository<FloatData> _unemployment;
+        private Repository<SaleRecord> _saleRecords;
         private Dictionary<int, float> _averageDwellingValueByZone;
         private CurrencyManager _currencyManager;
+
+        // Initial coefficients for the linear hedonic pricing model. The first
+        // value is the intercept while the rest correspond to the explanatory
+        // variables used when computing asking prices. These are simple default
+        // values and will be overwritten once sale records accumulate and a
+        // regression is run.
+        private double[] _beta = new double[]
+        {
+            300000.0,   // intercept
+            10000.0,    // rooms
+            -1000.0,    // distance to subway
+            -1000.0,    // distance to regional transit
+            500.0,      // residential land use share
+            -500.0      // commercial land use share
+        };
+
 
         private Date _currentDate;
 
@@ -96,6 +117,7 @@ namespace TMG.Ilute.Model.Housing
 
             _averageDwellingValueByZone = new Dictionary<int, float>();
             _currencyManager = Repository.GetRepository(CurrencyManager);
+            _saleRecords = Repository.GetRepository(SaleRecordRepository);
         }
 
         public void Execute(int currentYear, int month)
@@ -108,6 +130,7 @@ namespace TMG.Ilute.Model.Housing
             _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
             _unemployment = Repository.GetRepository(UnemploymentByZone);
             _distanceToRegionalTransit = Repository.GetRepository(DistanceToRegionalTransit);
+            _saleRecords = Repository.GetRepository(SaleRecordRepository);
 
             if (_averageDwellingValueByZone == null)
             {
@@ -117,6 +140,7 @@ namespace TMG.Ilute.Model.Housing
                 _averageDwellingValueByZone = new Dictionary<int, float>();
             }
             AverageDwellingValueByZone(new Date(currentYear, month));
+            UpdateRegressionCoefficients(new Date(currentYear, month));
         }
         
 
@@ -153,6 +177,82 @@ namespace TMG.Ilute.Model.Housing
             }
         }
 
+        private void UpdateRegressionCoefficients(Date now)
+        {
+            if (_saleRecords == null)
+            {
+                return;
+            }
+
+            int end = now.Months;
+            int start = end - 3;
+            var records = _saleRecords.Where(r => r.Date.Months >= start && r.Date.Months < end).ToList();
+            if (records.Count == 0)
+            {
+                return;
+            }
+
+            int p = 6;
+            double[,] xtx = new double[p, p];
+            double[] xty = new double[p];
+
+            foreach (var rec in records)
+            {
+                // Vector of explanatory variables for the linear model.
+                double[] x =
+                    { 1.0, rec.Rooms, rec.DistSubway, rec.DistRegional, rec.Residential, rec.Commerce };
+                double y = rec.Price;
+                for (int i = 0; i < p; i++)
+                {
+                    xty[i] += x[i] * y;
+                    for (int j = 0; j < p; j++)
+                    {
+                        xtx[i, j] += x[i] * x[j];
+                    }
+                }
+            }
+
+            _beta = Solve(xtx, xty);
+        }
+
+        private static double[] Solve(double[,] a, double[] b)
+        {
+            int n = b.Length;
+            var x = new double[n];
+            var A = new double[n, n];
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n; j++)
+                    A[i, j] = a[i, j];
+            var B = new double[n];
+            for (int i = 0; i < n; i++) B[i] = b[i];
+
+            for (int i = 0; i < n; i++)
+            {
+                int max = i;
+                for (int k = i + 1; k < n; k++)
+                {
+                    if (Math.Abs(A[k, i]) > Math.Abs(A[max, i])) max = k;
+                }
+                for (int j = i; j < n; j++) (A[i, j], A[max, j]) = (A[max, j], A[i, j]);
+                (B[i], B[max]) = (B[max], B[i]);
+
+                double pivot = A[i, i];
+                if (Math.Abs(pivot) < 1e-12) return _beta;
+                for (int j = i; j < n; j++) A[i, j] /= pivot;
+                B[i] /= pivot;
+
+                for (int k = 0; k < n; k++)
+                {
+                    if (k == i) continue;
+                    double factor = A[k, i];
+                    for (int j = i; j < n; j++) A[k, j] -= factor * A[i, j];
+                    B[k] -= factor * B[i];
+                }
+            }
+
+            for (int i = 0; i < n; i++) x[i] = B[i];
+            return x;
+        }
 
 
         /// <summary>
@@ -241,24 +341,21 @@ namespace TMG.Ilute.Model.Housing
                 landUse = new TMG.Ilute.Data.Spatial.LandUse(ctZone, 0, 0, 0, 0);
             }
 
-            // Distinguish between high rise and low rise 
+            double[] x = new double[]
+            {
+                1.0,
+                seller.Rooms,
+                avgDistToSubwayKM,
+                avgDistToRegionalTransitKM,
+                landUse.Residential,
+                landUse.Commerce
+            };
 
-            // units are likely in $100,000 with the dollar likely from 2003-2004. This is based on the seller type data shown above.
-            double logPrice = 4.0312
-           + 0.07625 * seller.Rooms
-           - 0.0067 * avgDistToSubwayKM
-           - 0.00163 * avgDistToRegionalTransitKM
-           + 0.00016 * landUse.Residential
-           - 0.00021 * landUse.Commerce
-    /*- 0.00183 * myZone.UnEmplRate
-    - 0.3746 * myZone.AvgPplPerRoom
-    + 0.00151 * AvgCTDwellingValue
-    + 0.00288 * AvgSalePriceForThisType
-    - 0.00189 * myZone.AvgDaysListedOnMarket*/;
-
-            // Convert from log-price to dollars.  The multiplication by 100000
-            // matches the units used for the average sale prices above.
-            double price = Math.Exp(logPrice) * 100000.0;
+            double price = 0.0;
+            for (int i = 0; i < _beta.Length && i < x.Length; i++)
+            {
+                price += _beta[i] * x[i];
+            }
 
             return ((float)price, 0f);
         }

@@ -27,6 +27,7 @@ using TMG.Emme.XTMF_Internal;
 using TMG.Ilute.Data;
 using TMG.Ilute.Data.Demographics;
 using TMG.Ilute.Data.Housing;
+using TMG.Ilute.Data.Spatial;
 using TMG.Ilute.Model.Utilities;
 using XTMF;
 
@@ -54,11 +55,30 @@ namespace TMG.Ilute.Model.Housing
         public IDataSource<CurrencyManager> CurrencyManager;
         private CurrencyManager _currencyManager;
 
+        private Repository<LandUse> _landUse;
+        private Repository<FloatData> _distanceToSubway;
+        private Repository<FloatData> _distanceToRegionalTransit;
+        private Repository<SaleRecord> _saleRecords;
+
+
         [SubModelInformation(Required = true, Description = "The source of people in the model.")]
         public IDataSource<Repository<Person>> PersonRepository;
 
         [SubModelInformation(Required = true, Description = "The log to save the write to.")]
         public IDataSource<ExecutionLog> LogSource;
+
+        [SubModelInformation(Required = false, Description = "Records past dwelling sales.")]
+        public IDataSource<Repository<SaleRecord>> SaleRecordRepository;
+
+        [SubModelInformation(Required = false, Description = "Land-Use data for the housing zone system.")]
+        public IDataSource<Repository<LandUse>> LandUse;
+
+        [SubModelInformation(Required = false, Description = "The average distance to the subway by zone.")]
+        public IDataSource<Repository<FloatData>> DistanceToSubwayByZone;
+
+        [SubModelInformation(Required = false, Description = "The average distance to Regional Transit by zone.")]
+        public IDataSource<Repository<FloatData>> DistanceToRegionalTransit;
+
 
         #region Parameters
         private const float RES_MOBILITY_SCALER = 0.5F;
@@ -182,6 +202,32 @@ namespace TMG.Ilute.Model.Housing
             AskingPrices.BeforeFirstYear(firstYear);
             SupplyModule?.BeforeFirstYear(firstYear);
 
+            if (SaleRecordRepository != null && !SaleRecordRepository.Loaded)
+            {
+                SaleRecordRepository.LoadData();
+            }
+
+            if (LandUse != null && !LandUse.Loaded)
+            {
+                LandUse.LoadData();
+            }
+
+            if (DistanceToSubwayByZone != null && !DistanceToSubwayByZone.Loaded)
+            {
+                DistanceToSubwayByZone.LoadData();
+            }
+
+            if (DistanceToRegionalTransit != null && !DistanceToRegionalTransit.Loaded)
+            {
+                DistanceToRegionalTransit.LoadData();
+            }
+
+            _landUse = Repository.GetRepository(LandUse);
+            _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
+            _distanceToRegionalTransit = Repository.GetRepository(DistanceToRegionalTransit);
+            _saleRecords = Repository.GetRepository(SaleRecordRepository);
+
+
             // reset tracking information for buyers and sellers
             _buyerDurations = new Dictionary<long, int>();
             _sellerDurations = new Dictionary<long, int>();
@@ -201,6 +247,28 @@ namespace TMG.Ilute.Model.Housing
         {
             BidModel.BeforeYearlyExecute(currentYear);
             AskingPrices.BeforeYearlyExecute(currentYear);
+
+            if (SaleRecordRepository != null && !SaleRecordRepository.Loaded)
+            {
+                SaleRecordRepository.LoadData();
+            }
+            if (LandUse != null && !LandUse.Loaded)
+            {
+                LandUse.LoadData();
+            }
+            if (DistanceToSubwayByZone != null && !DistanceToSubwayByZone.Loaded)
+            {
+                DistanceToSubwayByZone.LoadData();
+            }
+            if (DistanceToRegionalTransit != null && !DistanceToRegionalTransit.Loaded)
+            {
+                DistanceToRegionalTransit.LoadData();
+            }
+
+            _landUse = Repository.GetRepository(LandUse);
+            _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
+            _distanceToRegionalTransit = Repository.GetRepository(DistanceToRegionalTransit);
+            _saleRecords = Repository.GetRepository(SaleRecordRepository);
 
             var dwellings = Repository.GetRepository(DwellingRepository);
             var persons = Repository.GetRepository(PersonRepository);
@@ -543,6 +611,44 @@ namespace TMG.Ilute.Model.Housing
             seller.ListingDate = null;
             _boughtDwellings++;
             _totalSalePrice += transactionPrice;
+
+
+
+            if (_saleRecords != null)
+            {
+                float distSubway = 0f;
+                if (_distanceToSubway != null && _distanceToSubway.TryGet(seller.Zone, out var sub))
+                {
+                    distSubway = sub.Data;
+                }
+
+                float distRegional = 0f;
+                if (_distanceToRegionalTransit != null && _distanceToRegionalTransit.TryGet(seller.Zone, out var rt))
+                {
+                    distRegional = rt.Data;
+                }
+
+                float res = 0f, com = 0f;
+                if (_landUse != null && _landUse.TryGet(seller.Zone, out var lu))
+                {
+                    res = lu.Residential;
+                    com = lu.Commerce;
+                }
+
+                var rec = new SaleRecord
+                {
+                    Date = _currentTime,
+                    Price = transactionPrice,
+                    Rooms = seller.Rooms,
+                    Zone = seller.Zone,
+                    DistSubway = distSubway,
+                    DistRegional = distRegional,
+                    Residential = res,
+                    Commerce = com
+                };
+                _saleRecords.AddNew(rec);
+            }
+
             Repository.GetRepository(LogSource)
                 .WriteToLog($"Sold dwelling {seller.Id} for {transactionPrice} in year {_currentTime.Year}.");
         }
