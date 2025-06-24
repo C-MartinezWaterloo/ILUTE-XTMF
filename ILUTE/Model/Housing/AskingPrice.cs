@@ -189,6 +189,12 @@ namespace TMG.Ilute.Model.Housing
             var records = _saleRecords.Where(r => r.Date.Months >= start && r.Date.Months < end).ToList();
             if (records.Count == 0)
             {
+                if (LogSource != null && now.Month % 3 == 0)
+                {
+                    var log = Repository.GetRepository(LogSource);
+                    int quarter = now.Month / 3 + 1;
+                    log.WriteToLog($"No sale records available for regression in {now.Year} Q{quarter}.");
+                }
                 return;
             }
 
