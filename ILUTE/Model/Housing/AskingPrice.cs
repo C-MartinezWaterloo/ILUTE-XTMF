@@ -215,7 +215,7 @@ namespace TMG.Ilute.Model.Housing
             _beta = Solve(xtx, xty);
         }
 
-        private static double[] Solve(double[,] a, double[] b)
+        private double[] Solve(double[,] a, double[] b)
         {
             int n = b.Length;
             var x = new double[n];
