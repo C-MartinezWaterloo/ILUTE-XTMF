@@ -291,12 +291,6 @@ namespace TMG.Ilute.Model.Housing
             (var askingPrice, var minPrice) = DwellingPrice(seller);
             float decayedPrice = askingPrice * (float)Math.Pow(ASKING_PRICE_FACTOR_DECREASE, monthsOnMarket);
 
-            if (LogSource != null)
-            {
-                Repository.GetRepository(LogSource)
-                    .WriteToLog($"Asking price for dwelling {seller.Id} is {decayedPrice:F2}");
-            }
-
 
             return (decayedPrice, minPrice);
         }

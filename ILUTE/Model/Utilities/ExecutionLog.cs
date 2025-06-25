@@ -75,11 +75,7 @@ namespace TMG.Ilute.Model.Utilities
                 {
                     var mode = Append ? FileMode.Append : FileMode.Create;
                     var fileStream = new FileStream(SaveTo, mode, FileAccess.Write, FileShare.ReadWrite);
-                    var streamWriter = new StreamWriter(fileStream)
-                    {
-                        AutoFlush = true
-                    };
-                    Writer = streamWriter;
+                    Writer = new StreamWriter(fileStream);
                 }
 
                 Loaded = true;
