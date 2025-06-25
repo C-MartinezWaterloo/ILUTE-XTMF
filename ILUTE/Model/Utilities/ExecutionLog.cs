@@ -66,7 +66,19 @@ namespace TMG.Ilute.Model.Utilities
                     UnloadData();
                     Console.WriteLine("Created a new log!");
                 }
-                Writer = SaveTo == null ? Console.Out : new StreamWriter(SaveTo, Append);
+
+                if (SaveTo == null)
+                {
+                    Writer = Console.Out;
+                }
+                else
+                {
+                    var streamWriter = new StreamWriter(SaveTo, Append)
+                    {
+                        AutoFlush = true
+                    };
+                    Writer = streamWriter;
+                }
                 Loaded = true;
             }
         }
@@ -89,6 +101,7 @@ namespace TMG.Ilute.Model.Utilities
                 WriteTwoDigits(writer, currentTime.Second);
                 writer.Write("] ");
                 writer.WriteLine(toLog);
+                writer.Flush();
             }
         }
 

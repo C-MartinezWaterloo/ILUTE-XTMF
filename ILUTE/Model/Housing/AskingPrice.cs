@@ -122,7 +122,7 @@ namespace TMG.Ilute.Model.Housing
 
         public void Execute(int currentYear, int month)
         {
-            //TODO: Update all of the monthly rates / data here
+          
 
             _currentDate = new Date(currentYear, month);
             // Loading the required repositories
@@ -189,7 +189,7 @@ namespace TMG.Ilute.Model.Housing
             var records = _saleRecords.Where(r => r.Date.Months >= start && r.Date.Months < end).ToList();
             if (records.Count == 0)
             {
-                if (LogSource != null && now.Month % 3 == 0)
+                if (LogSource != null && (now.Month + 1) % 3 == 0)
                 {
                     var log = Repository.GetRepository(LogSource);
                     int quarter = now.Month / 3 + 1;
@@ -220,7 +220,8 @@ namespace TMG.Ilute.Model.Housing
 
             _beta = Solve(xtx, xty);
 
-            if (LogSource != null && now.Month % 3 == 0)
+            // Log updated coefficients only at the end of each quarter.
+            if (LogSource != null && (now.Month + 1) % 3 == 0)
             {
                 var log = Repository.GetRepository(LogSource);
                 int quarter = now.Month / 3 + 1;
@@ -275,8 +276,6 @@ namespace TMG.Ilute.Model.Housing
         /// Calculates the current asking price and minimum acceptable price for a dwelling,
         /// applying a monthly decay factor based on how long the dwelling has been listed.
         /// </summary>
-
-
 
         public (float askingPrice, float minimumPrice) GetPrice(Dwelling seller)
         {
