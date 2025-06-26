@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TMG.Ilute.Data.Demographics;
 using TMG.Ilute.Data.Mock;
+using TMG.Ilute.Data.Housing;
 using XTMF;
 
 namespace TMG.Ilute.Data
@@ -48,6 +49,8 @@ namespace TMG.Ilute.Data
         /// <typeparam name="T">The type of data stored</typeparam>
         /// <param name="source">The datasource to be loading</param>
         /// <returns>The now loaded data source's data</returns>
+        /// 
+        private static Repository<SaleRecord>? _emptySaleRecordRepo;
         public static T GetRepository<T>(IDataSource<T> source)
         {
             if (source == null)
@@ -61,6 +64,16 @@ namespace TMG.Ilute.Data
                         zeroRepo.LoadData();
                     }
                     return (T)(object)zeroRepo.GiveData();
+                }
+
+                if (typeof(T) == typeof(Repository<SaleRecord>))
+                {
+                    if (_emptySaleRecordRepo == null)
+                    {
+                        _emptySaleRecordRepo = new Repository<SaleRecord>();
+                        _emptySaleRecordRepo.LoadData();
+                    }
+                    return (T)(object)_emptySaleRecordRepo;
                 }
                 return default!;
             }

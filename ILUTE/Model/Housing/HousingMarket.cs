@@ -225,7 +225,21 @@ namespace TMG.Ilute.Model.Housing
             _landUse = Repository.GetRepository(LandUse);
             _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
             _distanceToRegionalTransit = Repository.GetRepository(DistanceToRegionalTransit);
-            _saleRecords = Repository.GetRepository(SaleRecordRepository);
+
+
+            if (SaleRecordRepository != null)
+            {
+                var repo = Repository.GetRepository(SaleRecordRepository);
+                if (repo != null)
+                {
+                    _saleRecords = repo;
+                }
+            }
+            if (_saleRecords == null)
+            {
+                _saleRecords = new Repository<SaleRecord>();
+                _saleRecords.LoadData();
+            }
 
 
             // reset tracking information for buyers and sellers
@@ -268,7 +282,21 @@ namespace TMG.Ilute.Model.Housing
             _landUse = Repository.GetRepository(LandUse);
             _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
             _distanceToRegionalTransit = Repository.GetRepository(DistanceToRegionalTransit);
-            _saleRecords = Repository.GetRepository(SaleRecordRepository);
+
+            if (SaleRecordRepository != null)
+            {
+                var repo = Repository.GetRepository(SaleRecordRepository);
+                if (repo != null)
+                {
+                    _saleRecords = repo;
+                }
+            }
+            if (_saleRecords == null)
+            {
+                _saleRecords = new Repository<SaleRecord>();
+                _saleRecords.LoadData();
+            }
+
 
             var dwellings = Repository.GetRepository(DwellingRepository);
             var persons = Repository.GetRepository(PersonRepository);

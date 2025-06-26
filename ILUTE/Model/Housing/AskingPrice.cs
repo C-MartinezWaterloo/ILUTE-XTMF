@@ -117,12 +117,18 @@ namespace TMG.Ilute.Model.Housing
 
             _averageDwellingValueByZone = new Dictionary<int, float>();
             _currencyManager = Repository.GetRepository(CurrencyManager);
-            _saleRecords = Repository.GetRepository(SaleRecordRepository);
+            if (SaleRecordRepository != null)
+            {
+                var repo = Repository.GetRepository(SaleRecordRepository);
+                if (repo != null)
+                {
+                    _saleRecords = repo;
+                }
+            }
             if (_saleRecords == null)
             {
                 _saleRecords = new Repository<SaleRecord>();
                 _saleRecords.LoadData();
-
             }
 
         }
@@ -137,14 +143,22 @@ namespace TMG.Ilute.Model.Housing
             _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
             _unemployment = Repository.GetRepository(UnemploymentByZone);
             _distanceToRegionalTransit = Repository.GetRepository(DistanceToRegionalTransit);
-            _saleRecords = Repository.GetRepository(SaleRecordRepository);
 
-            if(_saleRecords == null)
+
+            if (SaleRecordRepository != null)
             {
-                _saleRecords= new Repository<SaleRecord>();
-                _saleRecords.LoadData();
-
+                var repo = Repository.GetRepository(SaleRecordRepository);
+                if (repo != null)
+                {
+                    _saleRecords = repo;
+                }
             }
+            if (_saleRecords == null)
+            {
+                _saleRecords = new Repository<SaleRecord>();
+                _saleRecords.LoadData();
+            }
+
 
             if (_averageDwellingValueByZone == null)
             {
