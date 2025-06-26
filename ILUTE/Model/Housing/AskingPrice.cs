@@ -118,6 +118,13 @@ namespace TMG.Ilute.Model.Housing
             _averageDwellingValueByZone = new Dictionary<int, float>();
             _currencyManager = Repository.GetRepository(CurrencyManager);
             _saleRecords = Repository.GetRepository(SaleRecordRepository);
+            if (_saleRecords == null)
+            {
+                _saleRecords = new Repository<SaleRecord>();
+                _saleRecords.LoadData();
+
+            }
+
         }
 
         public void Execute(int currentYear, int month)
@@ -131,6 +138,13 @@ namespace TMG.Ilute.Model.Housing
             _unemployment = Repository.GetRepository(UnemploymentByZone);
             _distanceToRegionalTransit = Repository.GetRepository(DistanceToRegionalTransit);
             _saleRecords = Repository.GetRepository(SaleRecordRepository);
+
+            if(_saleRecords == null)
+            {
+                _saleRecords= new Repository<SaleRecord>();
+                _saleRecords.LoadData();
+
+            }
 
             if (_averageDwellingValueByZone == null)
             {
@@ -189,12 +203,15 @@ namespace TMG.Ilute.Model.Housing
 
         private void UpdateRegressionCoefficients(Date now)
         {
+
             if (_saleRecords == null)
             {
-                throw new XTMFRuntimeException(this, "The Sales Record is Empty");
-             
-            }
+                var log = GetLog();
+                log?.WriteToLog("Sale record repository missing; skipping regression update.");
+                return;
 
+            }
+ 
             int end = now.Months;
             int start = end - 3;
             var records = _saleRecords.Where(r => r.Date.Months >= start && r.Date.Months < end).ToList();
