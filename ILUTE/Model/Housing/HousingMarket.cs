@@ -237,8 +237,9 @@ namespace TMG.Ilute.Model.Housing
             }
             if (_saleRecords == null)
             {
-                _saleRecords = new Repository<SaleRecord>();
-                _saleRecords.LoadData();
+                // Fall back to the shared empty repository so that other
+                // modules (e.g., AskingPrice) see the same data source.
+                _saleRecords = Repository.GetRepository<Repository<SaleRecord>>(null);
             }
 
 
@@ -293,8 +294,9 @@ namespace TMG.Ilute.Model.Housing
             }
             if (_saleRecords == null)
             {
-                _saleRecords = new Repository<SaleRecord>();
-                _saleRecords.LoadData();
+                // Fall back to the shared empty repository so that all
+                // modules reference the same set of sale records.
+                _saleRecords = Repository.GetRepository<Repository<SaleRecord>>(null);
             }
 
 
