@@ -619,7 +619,7 @@ namespace TMG.Ilute.Model.Housing
             }
             return MaxBedrooms * offset + Math.Max(Math.Min(MaxBedrooms - 1, rooms), 0);
         }
-
+        
         protected override void ResolveSale(Household buyer, Dwelling seller, float transactionPrice)
         {
             // if this house is the current dwelling of the household that owns it, set that household to not have a dwelling
