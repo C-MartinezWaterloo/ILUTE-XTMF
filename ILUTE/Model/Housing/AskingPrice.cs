@@ -177,11 +177,22 @@ namespace TMG.Ilute.Model.Housing
             }
         }
 
+        private ExecutionLog? GetLog()
+        {
+            if (LogSource != null)
+            {
+                return Repository.GetRepository(LogSource);
+            }
+            return null;
+        }
+
+
         private void UpdateRegressionCoefficients(Date now)
         {
             if (_saleRecords == null)
             {
-                return;
+                throw new XTMFRuntimeException(this, "The Sales Record is Empty");
+             
             }
 
             int end = now.Months;
@@ -189,11 +200,14 @@ namespace TMG.Ilute.Model.Housing
             var records = _saleRecords.Where(r => r.Date.Months >= start && r.Date.Months < end).ToList();
             if (records.Count == 0)
             {
-                if (LogSource != null && (now.Month + 1) % 3 == 0)
+                if ((now.Month + 1) % 3 == 0)
                 {
-                    var log = Repository.GetRepository(LogSource);
-                    int quarter = now.Month / 3 + 1;
-                    log.WriteToLog($"No sale records available for regression in {now.Year} Q{quarter}.");
+                    var log = GetLog();
+                    if (log != null)
+                    {
+                        int quarter = now.Month / 3 + 1;
+                        log.WriteToLog($"No sale records available for regression in {now.Year} Q{quarter}.");
+                    }
                 }
                 return;
             }
@@ -221,14 +235,19 @@ namespace TMG.Ilute.Model.Housing
             _beta = Solve(xtx, xty);
 
             // Log updated coefficients only at the end of each quarter.
-            if (LogSource != null && (now.Month + 1) % 3 == 0)
+            if ((now.Month + 1) % 3 == 0)
             {
-                var log = Repository.GetRepository(LogSource);
-                int quarter = now.Month / 3 + 1;
-                string coeffs = string.Join(", ", _beta.Select(v => v.ToString("F4")));
-                log.WriteToLog($"Regression coefficients for {now.Year} Q{quarter}: {coeffs}");
+                
+                    var log = GetLog();
+                    if (log != null)
+                    {
+                        int quarter = now.Month / 3 + 1;
+                        string coeffs = string.Join(", ", _beta.Select(v => v.ToString("F4")));
+                        log.WriteToLog($"Regression coefficients for {now.Year} Q{quarter}: {coeffs}");
+                    }
+
+                }
             }
-        }
 
         private double[] Solve(double[,] a, double[] b)
         {
