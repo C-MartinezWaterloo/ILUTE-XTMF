@@ -248,9 +248,9 @@ namespace TMG.Ilute.Model.Housing
 
             foreach (var rec in records)
             {
-                var x = new double[p]
+                var x = new double[]
                 {
-                    1.0,
+                    1.0, // Intercept term
                     rec.Rooms,
                     rec.DistSubway,
                     rec.DistRegional,
@@ -276,14 +276,14 @@ namespace TMG.Ilute.Model.Housing
         private double[] Solve(double[,] xtx, double[] xty)
         {
             int n = xty.Length;
-            var A = (double[,])xtx.Clone();
-            var b = (double[])xty.Clone();
+            var A = (double[,])xtx.Clone();   // A ← XᵀX
+            var b = (double[])xty.Clone();    // b ← Xᵀy
 
             // Add a small ridge penalty for stability
             const double lambda = 1e-4;
             for (int i = 0; i < n; i++)
             {
-                A[i, i] += lambda;
+                A[i, i] += lambda;            // A ← A + λI
             }
 
             // Cholesky decomposition: A = L * L^T
