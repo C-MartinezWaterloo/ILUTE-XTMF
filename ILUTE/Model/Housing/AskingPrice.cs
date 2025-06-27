@@ -167,8 +167,8 @@ namespace TMG.Ilute.Model.Housing
                 // computing averages.
                 _averageDwellingValueByZone = new Dictionary<int, float>();
             }
-            AverageDwellingValueByZone(new Date(currentYear, month));
-            UpdateRegressionCoefficients(new Date(currentYear, month));
+            AverageDwellingValueByZone(_currentDate);
+            UpdateRegressionCoefficients(_currentDate);
         }
         
 
@@ -217,23 +217,26 @@ namespace TMG.Ilute.Model.Housing
 
         private void UpdateRegressionCoefficients(Date now)
         {
-
+            var log = GetLog();
             if (_saleRecords == null)
             {
-                var log = GetLog();
+                
                 log?.WriteToLog("Sale record repository missing; skipping regression update.");
                 return;
 
             }
- 
+
             int end = now.Months;
             int start = end - 3;
             var records = _saleRecords.Where(r => r.Date.Months >= start && r.Date.Months < end).ToList();
+
+            log?.WriteToLog($"number of records {records.Count}");
+
             if (records.Count == 0)
             {
                 if ((now.Month + 1) % 3 == 0)
                 {
-                    var log = GetLog();
+                   
                     if (log != null)
                     {
                         int quarter = now.Month / 3 + 1;
@@ -269,7 +272,7 @@ namespace TMG.Ilute.Model.Housing
             if ((now.Month + 1) % 3 == 0)
             {
                 
-                    var log = GetLog();
+               
                     if (log != null)
                     {
                         int quarter = now.Month / 3 + 1;
@@ -288,6 +291,13 @@ namespace TMG.Ilute.Model.Housing
             for (int i = 0; i < n; i++)
                 for (int j = 0; j < n; j++)
                     A[i, j] = a[i, j];
+
+            // Apply a small ridge penalty to the diagonal to avoid singular matrices
+            const double lambda = 1e-8;
+            for (int i = 0; i < n; i++)
+                A[i, i] += lambda;
+
+
             var B = new double[n];
             for (int i = 0; i < n; i++) B[i] = b[i];
 
@@ -302,7 +312,17 @@ namespace TMG.Ilute.Model.Housing
                 (B[i], B[max]) = (B[max], B[i]);
 
                 double pivot = A[i, i];
-                if (Math.Abs(pivot) < 1e-12) return _beta;
+
+                if (Math.Abs(pivot) < 1e-12)
+                {
+                    // In the rare case the pivot is still effectively zero,
+                    // increase the ridge penalty for this row and retry.
+                    A[i, i] += lambda;
+                    pivot = A[i, i];
+                    if (Math.Abs(pivot) < 1e-12) return _beta;
+                }
+
+
                 for (int j = i; j < n; j++) A[i, j] /= pivot;
                 B[i] /= pivot;
 
