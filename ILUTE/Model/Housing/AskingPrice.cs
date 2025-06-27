@@ -283,16 +283,22 @@ namespace TMG.Ilute.Model.Housing
                 }
             }
 
+        // Takes a square matrix a (size n×n) and a right‐hand‐side vector b of length n.
+
         private double[] Solve(double[,] a, double[] b)
         {
             int n = b.Length;
+
+            // will hold the final solution
             var x = new double[n];
+
+            // making a copy of A
             var A = new double[n, n];
             for (int i = 0; i < n; i++)
                 for (int j = 0; j < n; j++)
                     A[i, j] = a[i, j];
 
-            // Apply a small ridge penalty to the diagonal to avoid singular matrices
+            // Apply a small ridge penalty to the diagonal to avoid singular matrices, this allows for the matrix to break exact singularity or near‐singularity in A so you can divide by pivot without hitting zero.
             const double lambda = 1e-8;
             for (int i = 0; i < n; i++)
                 A[i, i] += lambda;
