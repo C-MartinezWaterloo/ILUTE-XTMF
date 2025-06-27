@@ -243,27 +243,7 @@ namespace TMG.Ilute.Model.Housing
                 return;
             }
 
-            int p = 6;
-            double[,] xtx = new double[p, p];
-            double[] xty = new double[p];
-
-            foreach (var rec in records)
-            {
-                // Vector of explanatory variables for the linear model.
-                double[] x =
-                    { 1.0, rec.Rooms, rec.DistSubway, rec.DistRegional, rec.Residential, rec.Commerce };
-                double y = rec.Price;
-                for (int i = 0; i < p; i++)
-                {
-                    xty[i] += x[i] * y;
-                    for (int j = 0; j < p; j++)
-                    {
-                        xtx[i, j] += x[i] * x[j];
-                    }
-                }
-            }
-
-            _beta = Solve(xtx, xty);
+            _beta = Solve(records);
 
             // Log updated coefficients only at the end of each quarter.
             if ((now.Month + 1) % 3 == 0)
@@ -280,44 +260,60 @@ namespace TMG.Ilute.Model.Housing
                 }
             }
 
-        private double[] Solve(double[,] a, double[] b)
+        private double[] Solve(List<SaleRecord> records)
         {
-            int n = b.Length;
-            var x = new double[n];
-            var A = new double[n, n];
-            for (int i = 0; i < n; i++)
-                for (int j = 0; j < n; j++)
-                    A[i, j] = a[i, j];
-            var B = new double[n];
-            for (int i = 0; i < n; i++) B[i] = b[i];
+            int p = _beta.Length;
+            double[] beta = (double[])_beta.Clone();
+            const double lambda = 1e-4;
+            const double step = 1e-7;
 
-            for (int i = 0; i < n; i++)
+            for (int iter = 0; iter < 1000; iter++)
             {
-                int max = i;
-                for (int k = i + 1; k < n; k++)
+                double[] grad = new double[p];
+
+                foreach (var rec in records)
                 {
-                    if (Math.Abs(A[k, i]) > Math.Abs(A[max, i])) max = k;
+                    double[] x =
+                    {
+                        1.0,
+                        rec.Rooms,
+                        rec.DistSubway,
+                        rec.DistRegional,
+                        rec.Residential,
+                        rec.Commerce
+                    };
+                    double y = rec.Price;
+
+                    double pred = 0;
+                    for (int i = 0; i < p; i++)
+                    {
+                        pred += beta[i] * x[i];
+                    }
+
+                    double err = pred - y;
+                    for (int i = 0; i < p; i++)
+                    {
+                        grad[i] += err * x[i];
+                    }
                 }
-                for (int j = i; j < n; j++) (A[i, j], A[max, j]) = (A[max, j], A[i, j]);
-                (B[i], B[max]) = (B[max], B[i]);
 
-                double pivot = A[i, i];
-                if (Math.Abs(pivot) < 1e-12) return _beta;
-                for (int j = i; j < n; j++) A[i, j] /= pivot;
-                B[i] /= pivot;
-
-                for (int k = 0; k < n; k++)
+                for (int i = 0; i < p; i++)
                 {
-                    if (k == i) continue;
-                    double factor = A[k, i];
-                    for (int j = i; j < n; j++) A[k, j] -= factor * A[i, j];
-                    B[k] -= factor * B[i];
+                    grad[i] = (grad[i] / records.Count) + lambda * beta[i];
+                    beta[i] -= step * grad[i];
+                }
+
+                double maxChange = grad.Max(Math.Abs);
+                if (maxChange < 1e-3)
+                {
+                    break;
                 }
             }
 
-            for (int i = 0; i < n; i++) x[i] = B[i];
-            return x;
+            return beta;
         }
+
+
 
 
 
