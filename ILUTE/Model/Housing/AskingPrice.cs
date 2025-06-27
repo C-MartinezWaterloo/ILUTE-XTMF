@@ -38,37 +38,37 @@ namespace TMG.Ilute.Model.Housing
         public double ASKING_PRICE_FACTOR_DECREASE;
 
         [SubModelInformation(Required = true, Description = "Used to convert monetary values between years.")]
-        public IDataSource<CurrencyManager> CurrencyManager;
+        public IDataSource<CurrencyManager>? CurrencyManager;
 
         [SubModelInformation(Required = true, Description = "LandUse data for the housing zone system.")]
-        public IDataSource<Repository<LandUse>> LandUse;
+        public IDataSource<Repository<LandUse>>? LandUse;
 
         [SubModelInformation(Required = true, Description = "The average distance to the subway by zone.")]
-        public IDataSource<Repository<FloatData>> DistanceToSubwayByZone;
+        public IDataSource<Repository<FloatData>>? DistanceToSubwayByZone;
 
         [SubModelInformation(Required = true, Description = "The average distance to Regional Transit by Zone.")]
-        public IDataSource<Repository<FloatData>> DistanceToRegionalTransit;
+        public IDataSource<Repository<FloatData>>? DistanceToRegionalTransit;
 
         [SubModelInformation(Required = true, Description = "The unemployment rate by zone.")]
-        public IDataSource<Repository<FloatData>> UnemploymentByZone;
+        public IDataSource<Repository<FloatData>>? UnemploymentByZone;
 
         [SubModelInformation(Required = true, Description = "The repository of all dwellings.")]
-        public IDataSource<Repository<Dwelling>> Dwellings;
+        public IDataSource<Repository<Dwelling>>? Dwellings;
 
         [SubModelInformation(Required = false, Description = "Optional log output for asking prices.")]
-        public IDataSource<ExecutionLog> LogSource;
+        public IDataSource<ExecutionLog>? LogSource;
 
         [SubModelInformation(Required = false, Description = "Sale records for hedonic regression.")]
-        public IDataSource<Repository<SaleRecord>> SaleRecordRepository;
+        public IDataSource<Repository<SaleRecord>>? SaleRecordRepository;
 
 
-        private Repository<LandUse> _landUse;
-        private Repository<FloatData> _distanceToSubway;
-        private Repository<FloatData> _distanceToRegionalTransit;
-        private Repository<FloatData> _unemployment;
-        private Repository<SaleRecord> _saleRecords;
-        private Dictionary<int, float> _averageDwellingValueByZone;
-        private CurrencyManager _currencyManager;
+        private Repository<LandUse>? _landUse;
+        private Repository<FloatData>? _distanceToSubway;
+        private Repository<FloatData>? _distanceToRegionalTransit;
+        private Repository<FloatData>? _unemployment;
+        private Repository<SaleRecord>? _saleRecords;
+        private Dictionary<int, float>? _averageDwellingValueByZone;
+        private CurrencyManager? _currencyManager;
 
         // Initial coefficients for the linear hedonic pricing model. The first
         // value is the intercept while the rest correspond to the explanatory
@@ -250,12 +250,12 @@ namespace TMG.Ilute.Model.Housing
             {
                 var x = new double[p]
                 {
-            1.0,
-            rec.Rooms,
-            rec.DistSubway,
-            rec.DistRegional,
-            rec.Residential,
-            rec.Commerce
+                    1.0,
+                    rec.Rooms,
+                    rec.DistSubway,
+                    rec.DistRegional,
+                    rec.Residential,
+                    rec.Commerce
                 };
 
                 AddScaledVector(xty, x, rec.Price);
