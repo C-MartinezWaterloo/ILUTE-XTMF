@@ -220,129 +220,146 @@ namespace TMG.Ilute.Model.Housing
             var log = GetLog();
             if (_saleRecords == null)
             {
-                
                 log?.WriteToLog("Sale record repository missing; skipping regression update.");
                 return;
-
             }
 
             int end = now.Months;
             int start = end - 3;
-            var records = _saleRecords.Where(r => r.Date.Months >= start && r.Date.Months < end).ToList();
+            var records = _saleRecords
+                .Where(r => r.Date.Months >= start && r.Date.Months < end)
+                .ToList();
 
-            log?.WriteToLog($"number of records {records.Count}");
+            log?.WriteToLog($"Number of records: {records.Count}");
 
-            if (records.Count == 0)
+            if (!records.Any())
             {
                 if ((now.Month + 1) % 3 == 0)
                 {
-                   
-                    if (log != null)
-                    {
-                        int quarter = now.Month / 3 + 1;
-                        log.WriteToLog($"No sale records available for regression in {now.Year} Q{quarter}.");
-                    }
+                    int quarter = now.Month / 3 + 1;
+                    log?.WriteToLog($"No sale records available for regression in {now.Year} Q{quarter}.");
                 }
                 return;
             }
 
-            int p = 6;
-            double[,] xtx = new double[p, p];
-            double[] xty = new double[p];
+            int p = _beta.Length;
+            var xtx = new double[p, p];
+            var xty = new double[p];
 
             foreach (var rec in records)
             {
-                // Vector of explanatory variables for the linear model.
-                double[] x =
-                    { 1.0, rec.Rooms, rec.DistSubway, rec.DistRegional, rec.Residential, rec.Commerce };
-                double y = rec.Price;
-                for (int i = 0; i < p; i++)
+                var x = new double[p]
                 {
-                    xty[i] += x[i] * y;
-                    for (int j = 0; j < p; j++)
-                    {
-                        xtx[i, j] += x[i] * x[j];
-                    }
-                }
+            1.0,
+            rec.Rooms,
+            rec.DistSubway,
+            rec.DistRegional,
+            rec.Residential,
+            rec.Commerce
+                };
+
+                AddScaledVector(xty, x, rec.Price);
+                AddOuterProduct(xtx, x, 1.0);
             }
 
             _beta = Solve(xtx, xty);
 
-            // Log updated coefficients only at the end of each quarter.
+            // Log updated coefficients only at the end of each quarter
             if ((now.Month + 1) % 3 == 0)
             {
-                
-               
-                    if (log != null)
-                    {
-                        int quarter = now.Month / 3 + 1;
-                        string coeffs = string.Join(", ", _beta.Select(v => v.ToString("F4")));
-                        log.WriteToLog($"Regression coefficients for {now.Year} Q{quarter}: {coeffs}");
-                    }
-
-                }
+                int quarter = now.Month / 3 + 1;
+                string coeffs = string.Join(", ", _beta.Select(v => v.ToString("F4")));
+                log?.WriteToLog($"Regression coefficients for {now.Year} Q{quarter}: {coeffs}");
             }
+        }
 
-        // Takes a square matrix a (size n×n) and a right‐hand‐side vector b of length n.
-
-        private double[] Solve(double[,] a, double[] b)
+        private double[] Solve(double[,] xtx, double[] xty)
         {
-            int n = b.Length;
+            int n = xty.Length;
+            var A = (double[,])xtx.Clone();
+            var b = (double[])xty.Clone();
 
-            // will hold the final solution
-            var x = new double[n];
-
-            // making a copy of A
-            var A = new double[n, n];
-            for (int i = 0; i < n; i++)
-                for (int j = 0; j < n; j++)
-                    A[i, j] = a[i, j];
-
-            // Apply a small ridge penalty to the diagonal to avoid singular matrices, this allows for the matrix to break exact singularity or near‐singularity in A so you can divide by pivot without hitting zero.
-            const double lambda = 1e-8;
-            for (int i = 0; i < n; i++)
-                A[i, i] += lambda;
-
-
-            var B = new double[n];
-            for (int i = 0; i < n; i++) B[i] = b[i];
-
+            // Add a small ridge penalty for stability
+            const double lambda = 1e-4;
             for (int i = 0; i < n; i++)
             {
-                int max = i;
-                for (int k = i + 1; k < n; k++)
+                A[i, i] += lambda;
+            }
+
+            // Cholesky decomposition: A = L * L^T
+            var L = new double[n, n];
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j <= i; j++)
                 {
-                    if (Math.Abs(A[k, i]) > Math.Abs(A[max, i])) max = k;
-                }
-                for (int j = i; j < n; j++) (A[i, j], A[max, j]) = (A[max, j], A[i, j]);
-                (B[i], B[max]) = (B[max], B[i]);
+                    double sum = A[i, j];
+                    for (int k = 0; k < j; k++)
+                    {
+                        sum -= L[i, k] * L[j, k];
+                    }
 
-                double pivot = A[i, i];
-
-                if (Math.Abs(pivot) < 1e-12)
-                {
-                    // In the rare case the pivot is still effectively zero,
-                    // increase the ridge penalty for this row and retry.
-                    A[i, i] += lambda;
-                    pivot = A[i, i];
-                    if (Math.Abs(pivot) < 1e-12) return _beta;
-                }
-
-
-                for (int j = i; j < n; j++) A[i, j] /= pivot;
-                B[i] /= pivot;
-
-                for (int k = 0; k < n; k++)
-                {
-                    if (k == i) continue;
-                    double factor = A[k, i];
-                    for (int j = i; j < n; j++) A[k, j] -= factor * A[i, j];
-                    B[k] -= factor * B[i];
+                    if (i == j)
+                    {
+                        if (sum <= 0.0)
+                        {
+                            return _beta; // Matrix not positive definite
+                        }
+                        L[i, j] = Math.Sqrt(sum);
+                    }
+                    else
+                    {
+                        L[i, j] = sum / L[j, j];
+                    }
                 }
             }
 
-            for (int i = 0; i < n; i++) x[i] = B[i];
+            // Forward substitution: solve L * y = b
+            var yVec = new double[n];
+            for (int i = 0; i < n; i++)
+            {
+                double sum = b[i];
+                for (int k = 0; k < i; k++)
+                {
+                    sum -= L[i, k] * yVec[k];
+                }
+                yVec[i] = sum / L[i, i];
+            }
+
+            // Backward substitution: solve L^T * x = y
+            var x = new double[n];
+            for (int i = n - 1; i >= 0; i--)
+            {
+                double sum = yVec[i];
+                for (int k = i + 1; k < n; k++)
+                {
+                    sum -= L[k, i] * x[k];
+                }
+                x[i] = sum / L[i, i];
+            }
+
             return x;
+        }
+
+        private static void AddScaledVector(double[] target, double[] vec, double scale)
+        {
+            int len = Math.Min(target.Length, vec.Length);
+            for (int i = 0; i < len; i++)
+            {
+                target[i] += vec[i] * scale;
+            }
+        }
+
+        private static void AddOuterProduct(double[,] target, double[] vec, double scale)
+        {
+            int rows = Math.Min(target.GetLength(0), vec.Length);
+            int cols = Math.Min(target.GetLength(1), vec.Length);
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    target[i, j] += scale * vec[i] * vec[j];
+                }
+            }
         }
 
 
