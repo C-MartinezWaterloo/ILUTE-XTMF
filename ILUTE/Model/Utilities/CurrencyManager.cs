@@ -36,8 +36,6 @@ namespace TMG.Ilute.Model.Utilities
         // Inflation rates can be prpovided for each month using a TemporalDataLoader. The array index corresponds to the number of months since year zero.
         [SubModelInformation(Required = false, Description = "Inflation rate by month.")]
 
-
-
         public IDataSource<SparseArray<float>> TemperalDataLoader;
 
         private SparseArray<float> _inflationRateByMonth;
