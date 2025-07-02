@@ -24,8 +24,9 @@ using System.Threading.Tasks;
 using Datastructure;
 using XTMF;
 using TMG.Input;
-using System.Collections.Concurrent;
 using System.Numerics;
+using System.IO;
+using System.Globalization;
 
 namespace TMG.Ilute.Data.Spatial
 {
@@ -55,11 +56,6 @@ namespace TMG.Ilute.Data.Spatial
 
         public float[][] Distance { get; private set; }
 
-        private struct CompactedData
-        {
-            internal int Number;
-            internal float X, Y, Area;
-        }
 
         // Loads zone data from CSV and computes the distance matrix.
 
@@ -72,59 +68,44 @@ namespace TMG.Ilute.Data.Spatial
         }
 
         // This decouples CSV reading from data structuring using a producer-consumer pattern.
+        // Load the zone information from the CSV file.
 
         private void LoadInZones()
         {
-            var loadingCollection = new BlockingCollection<CompactedData>(); 
-            var loader = Task.Run(() =>
+
+            try
             {
                 var numberL = new List<int>();
                 var xL = new List<float>();
                 var yL = new List<float>();
                 var areaL = new List<float>();
-                foreach (var dataPoint in loadingCollection.GetConsumingEnumerable())
+                using (var stream = new FileStream(FileToLoad, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var reader = new StreamReader(stream))
                 {
-                    numberL.Add(dataPoint.Number);
-                    xL.Add(dataPoint.X);
-                    yL.Add(dataPoint.Y);
-                    areaL.Add(dataPoint.Area);
+                    string? line = reader.ReadLine(); // header
+                    while ((line = reader.ReadLine()) != null)
+
+                    {
+                        var parts = line.Split(',');
+                        if (parts.Length >= 4)
+                        {
+                            numberL.Add(int.Parse(parts[0]));
+                            xL.Add(float.Parse(parts[1], CultureInfo.InvariantCulture));
+                            yL.Add(float.Parse(parts[2], CultureInfo.InvariantCulture));
+                            areaL.Add(float.Parse(parts[3], CultureInfo.InvariantCulture));
+                        }
+                    }
                 }
                 ZoneNumber = numberL.ToArray();
                 X = xL.ToArray();
                 Y = yL.ToArray();
                 Area = areaL.ToArray();
-            });
-            try
-            {
-                using (var reader = new CsvReader(FileToLoad, true))
-                {
-                    reader.LoadLine(out int columns);
-                    while (reader.LoadLine(out columns))
-                    {
-                        if (columns >= 4)
-                        {
-                            CompactedData data;
-                            reader.Get(out data.Number, 0);
-                            reader.Get(out data.X, 1);
-                            reader.Get(out data.Y, 2);
-                            reader.Get(out data.Area, 3);
-                            loadingCollection.Add(data);
-                        }
-                    }
-                }
             }
 
-            catch (System.IO.IOException ex)
+            catch (IOException ex)
             {
                 throw new XTMFRuntimeException(this,
                     $"Unable to access zone file '{FileToLoad}'. {ex.Message}");
-            }
-
-
-            finally
-            {
-                loadingCollection.CompleteAdding();
-                loader.Wait();
             }
         }
 
