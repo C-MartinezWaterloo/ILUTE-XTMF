@@ -113,6 +113,14 @@ namespace TMG.Ilute.Data.Spatial
                     }
                 }
             }
+
+            catch (System.IO.IOException ex)
+            {
+                throw new XTMFRuntimeException(this,
+                    $"Unable to access zone file '{FileToLoad}'. {ex.Message}");
+            }
+
+
             finally
             {
                 loadingCollection.CompleteAdding();
