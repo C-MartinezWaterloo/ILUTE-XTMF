@@ -103,7 +103,18 @@ namespace TMG.Ilute.Model.Utilities
 
         public void LoadData()
         {
+            if (TemperalDataLoader == null)
+            {
+                throw new XTMFRuntimeException(this, "CurrencyManager requires a TemporalDataLoader to supply inflation data.");
+            }
+
             _inflationRateByMonth = Repository.GetRepository(TemperalDataLoader);
+
+            if (_inflationRateByMonth == null)
+            {
+                throw new XTMFRuntimeException(this, "Unable to load inflation data from TemporalDataLoader.");
+            }
+
             Loaded = true;
         }
 
