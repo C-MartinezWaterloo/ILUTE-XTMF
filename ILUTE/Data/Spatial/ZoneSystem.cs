@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using Datastructure;
 using XTMF;
 using TMG.Input;
+using System.Collections.Concurrent;
 using System.Numerics;
 
 namespace TMG.Ilute.Data.Spatial
@@ -111,12 +112,6 @@ namespace TMG.Ilute.Data.Spatial
                         }
                     }
                 }
-            }
-
-            catch (System.IO.IOException ex)
-            {
-                throw new XTMFRuntimeException(this,
-                    $"Unable to access zone file '{FileToLoad}'. {ex.Message}");
             }
 
 
