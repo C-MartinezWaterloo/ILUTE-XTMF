@@ -42,8 +42,12 @@ namespace TMG.Ilute.Model.Utilities
         [RunParameter("Headers", false, "Does the data file contain headers?")]
         public bool Headers;
 
-        [RunParameter("Ignore Data Outside Of Simulation", false, "Set this to true to allow (ignore) data outside of the model's time-frame.")]
+        [RunParameter("Ignore Data Outside of Simulation", true, "Set this to true to ignore data outside of the model's time-frame. Data past the end of the simulation stops the read so it can be used if the period is extended.")]
         public bool IgnoreDataOutsideOfSimulation;
+
+
+        [RunParameter("Data", false, "Data is monthly")]
+        public bool MonthlyData;
 
         public string Name { get; set; }
 
@@ -103,6 +107,11 @@ namespace TMG.Ilute.Model.Utilities
                         {
                             if(IgnoreDataOutsideOfSimulation)
                             {
+                                if (time >= endMonth)
+                                {
+                                    break;
+                                }
+
                                 continue;
                             }
                             throw new XTMFRuntimeException(this, $"While loading data in '{Name}' we came across a month = '{time}' that isn't in the model's time-frame.");
