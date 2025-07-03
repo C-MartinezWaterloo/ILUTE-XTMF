@@ -34,7 +34,7 @@ namespace TMG.Ilute.Model.Housing
 
         // Injecting the data from other modulus
     {
-        [RunParameter("Monthly Time Decay", 1.00, "The decay for the asking price as the house remains on the market.")]
+        [RunParameter("Monthly Time Decay", 0.97, "The decay for the asking price as the house remains on the market.")]
         public double ASKING_PRICE_FACTOR_DECREASE;
 
         [SubModelInformation(Required = true, Description = "Used to convert monetary values between years.")]
@@ -77,12 +77,12 @@ namespace TMG.Ilute.Model.Housing
         // regression is run.
         private double[] _beta = new double[]
         {
-            300000.0,   // intercept
-            10000.0,    // rooms
-            -1000.0,    // distance to subway
-            -1000.0,    // distance to regional transit
-            500.0,      // residential land use share
-            -500.0      // commercial land use share
+            166748.8310,   // intercept
+            -4292.7713,    // rooms
+            0,    // distance to subway
+            0,    // distance to regional transit
+            0,      // residential land use share
+            0     // commercial land use share
         };
 
 
