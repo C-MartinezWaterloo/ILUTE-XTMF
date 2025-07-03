@@ -39,6 +39,12 @@ namespace TMG.Ilute.Data.Housing
         public int Rooms { get; set; }
 
         /// <summary>
+        /// The interior square footage of the dwelling
+        /// </summary>
+        public int SquareFootage { get; set; }
+
+
+        /// <summary>
         /// The flat index into the zone system where this Dwelling resides.
         /// </summary>
         public int Zone { get; set; }

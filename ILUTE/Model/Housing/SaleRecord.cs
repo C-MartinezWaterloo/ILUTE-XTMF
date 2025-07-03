@@ -11,6 +11,7 @@ namespace TMG.Ilute.Data.Housing
         public Date Date { get; set; }
         public float Price { get; set; }
         public int Rooms { get; set; }
+        public int SquareFootage { get; set; }
         public int Zone { get; set; }
         public float DistSubway { get; set; }
         public float DistRegional { get; set; }

@@ -88,12 +88,14 @@ namespace TMG.Ilute.Model.Housing
                     var typeRoll = rand.NextFloat();
                     var type = PickType(typeRoll);
                     int rooms = PickRooms(type, rand);
+                    int sqft = PickSquareFootage(rooms, rand);
                     int zone = (int)(rand.NextFloat() * 5); // simple zone spread
 
                     var d = new Dwelling
                     {
                         Exists = true,
                         Rooms = rooms,
+                        SquareFootage = sqft,
                         Zone = zone,
                         Type = type,
                         Value = new Money(baseValue, new Date(currentYear, 0))
@@ -148,6 +150,13 @@ namespace TMG.Ilute.Model.Housing
                 default:
                     return 1 + (int)(rand.NextFloat() * 2); // 1-2
             }
+        }
+
+        private static int PickSquareFootage(int rooms, Rand rand)
+        {
+            int min = rooms * 200;
+            int max = rooms * 400;
+            return min + (int)(rand.NextFloat() * (max - min));
         }
     }
 }

@@ -670,6 +670,7 @@ namespace TMG.Ilute.Model.Housing
                     Date = _currentTime,
                     Price = transactionPrice,
                     Rooms = seller.Rooms,
+                    SquareFootage = seller.SquareFootage,
                     Zone = seller.Zone,
                     DistSubway = distSubway,
                     DistRegional = distRegional,

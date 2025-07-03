@@ -173,6 +173,7 @@ Household:
                         d.Exists = true;
                         d.Zone = zoneSystem.GetFlatIndex(ctcode);
                         d.Rooms = rooms;
+                        d.SquareFootage = rooms * 300;
                         d.Value = new Money(value, initialDate);
                         h.Tenure = ConvertTenureFromCensus(tenur);
                     }
