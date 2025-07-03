@@ -79,6 +79,7 @@ namespace TMG.Ilute.Model.Housing
         {
             300000,   // intercept
             10000,    // rooms
+            10000,   // square footage
             -1000,    // distance to subway
             -1000,    // distance to regional transit
             500,      // residential land use share
@@ -252,6 +253,7 @@ namespace TMG.Ilute.Model.Housing
                 {
                     1.0, // Intercept term
                     rec.Rooms,
+                    rec.SquareFootage,
                     rec.DistSubway,
                     rec.DistRegional,
                     rec.Residential,
@@ -451,6 +453,7 @@ namespace TMG.Ilute.Model.Housing
             {
                 1.0,
                 seller.Rooms,
+                seller.SquareFootage,
                 avgDistToSubwayKM,
                 avgDistToRegionalTransitKM,
                 landUse.Residential,
