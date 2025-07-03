@@ -34,7 +34,7 @@ namespace TMG.Ilute.Model.Housing
 
         // Injecting the data from other modulus
     {
-        [RunParameter("Monthly Time Decay", 0.95, "The decay for the asking price as the house remains on the market.")]
+        [RunParameter("Monthly Time Decay", 1.00, "The decay for the asking price as the house remains on the market.")]
         public double ASKING_PRICE_FACTOR_DECREASE;
 
         [SubModelInformation(Required = true, Description = "Used to convert monetary values between years.")]
