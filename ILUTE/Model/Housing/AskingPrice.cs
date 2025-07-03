@@ -77,12 +77,12 @@ namespace TMG.Ilute.Model.Housing
         // regression is run.
         private double[] _beta = new double[]
         {
-            166748.8310,   // intercept
-            -4292.7713,    // rooms
-            0,    // distance to subway
-            0,    // distance to regional transit
-            0,      // residential land use share
-            0     // commercial land use share
+            300000,   // intercept
+            10000,    // rooms
+            -1000,    // distance to subway
+            -1000,    // distance to regional transit
+            500,      // residential land use share
+            -500     // commercial land use share
         };
 
 
