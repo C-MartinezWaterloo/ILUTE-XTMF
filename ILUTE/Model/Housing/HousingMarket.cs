@@ -202,7 +202,10 @@ namespace TMG.Ilute.Model.Housing
                     var salary = job.Salary.Amount;
                     if (_currencyManager != null)
                     {
-                        salary = _currencyManager.ConvertToDate(job.Salary, new Date(currentYear, 0)).Amount;
+                        if (salary == 0f && job.Salary.Amount > 0f)
+                        {
+                            throw new XTMFRuntimeException(this, "currency manager is not working");
+                        }
                     }
                     personIncome += salary;
                 }
