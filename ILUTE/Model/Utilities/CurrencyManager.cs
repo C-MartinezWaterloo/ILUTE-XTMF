@@ -60,8 +60,10 @@ namespace TMG.Ilute.Model.Utilities
                 return new Money(money.Amount, date);
             }
 
-            // apply 0 inflation for now once we have some inflation tables use those instead.
-            return new Money(money.Amount * (GetRate(money.WhenCreated) / GetRate(date)), date);
+            return new Money(
+    money.Amount * GetRate(date) / GetRate(money.WhenCreated),
+    date
+); ;
         }
 
         /// <summary>
