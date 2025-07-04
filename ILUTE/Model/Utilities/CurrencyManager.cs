@@ -95,7 +95,9 @@ namespace TMG.Ilute.Model.Utilities
                 return 1f;
             }
 
-            return _inflationRateByMonth[date.Months];
+            var rate = _inflationRateByMonth[date.Months];
+            Console.WriteLine($"inflationRateByMonth[{date.Months}] = {rate}");
+            return rate;
         }
 
         public float Progress => 0f;
