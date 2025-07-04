@@ -59,6 +59,11 @@ namespace TMG.Ilute.Model.Demographic
                         if (_currencyManager != null)
                         {
                             salary = _currencyManager.ConvertToYear(job.Salary, _currentDate).Amount;
+
+                            if (salary == 0f && job.Salary.Amount > 0f)
+                            {
+                                throw new XTMFRuntimeException(this, "currency manager is not working");
+                            }
                         }
                         return salary;
                     });
