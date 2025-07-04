@@ -60,6 +60,11 @@ namespace TMG.Ilute.Model.Utilities
                 return new Money(money.Amount, date);
             }
 
+            if (GetRate(date) == 0 || GetRate(money.WhenCreated) == 0)
+            {
+                throw new XTMFRuntimeException("Inflation rate is zero for one of the dates, which would cause a divide-by-zero error.");
+            }
+
             return new Money(
     money.Amount * GetRate(date) / GetRate(money.WhenCreated),
     date
