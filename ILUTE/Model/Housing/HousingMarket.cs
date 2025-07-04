@@ -192,8 +192,27 @@ namespace TMG.Ilute.Model.Housing
                 $"for a total of {_totalSalePrice}, average {average:F2}."
             );
 
-
+            // compute and log the average personal income for this year
+            float totalIncome = 0f;
+            foreach (var person in persons)
+            {
+                float personIncome = 0f;
+                foreach (var job in person.Jobs)
+                {
+                    var salary = job.Salary.Amount;
+                    if (_currencyManager != null)
+                    {
+                        salary = _currencyManager.ConvertToDate(job.Salary, new Date(currentYear, 0)).Amount;
+                    }
+                    personIncome += salary;
                 }
+                totalIncome += personIncome;
+            }
+            var averageIncome = persons.Count > 0 ? totalIncome / persons.Count : 0f;
+            log.WriteToLog($"Average personal income in {currentYear}: {averageIncome:F2}");
+
+
+        }
 
 
         public void BeforeFirstYear(int firstYear)
