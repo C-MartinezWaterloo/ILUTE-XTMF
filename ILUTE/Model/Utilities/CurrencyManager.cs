@@ -33,12 +33,11 @@ namespace TMG.Ilute.Model.Utilities
     public sealed class CurrencyManager : IDataSource<CurrencyManager>
     {
 
-        // Inflation rates can be prpovided for each month using a TemporalDataLoader. The array index corresponds to the number of months since year zero.
+        // Inflation rates can be provided for each month using a TemporalDataLoader. The array index corresponds to the number of months since year zero.
         [SubModelInformation(Required = false, Description = "Inflation rate by month.")]
+        public IDataSource<SparseArray<float>>? TemperalDataLoader;
 
-        public IDataSource<SparseArray<float>> TemperalDataLoader;
-
-        private SparseArray<float> _inflationRateByMonth;
+        private SparseArray<float>? _inflationRateByMonth;
 
         public bool Loaded { get; set; }
 
