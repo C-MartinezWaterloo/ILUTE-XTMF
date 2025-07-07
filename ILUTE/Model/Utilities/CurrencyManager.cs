@@ -73,8 +73,7 @@ namespace TMG.Ilute.Model.Utilities
 
             return new Money(
                 money.Amount * targetRate / originRate,
-                date
-); 
+                date); 
         }
 
         /// <summary>
