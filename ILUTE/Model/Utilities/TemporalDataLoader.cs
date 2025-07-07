@@ -42,6 +42,8 @@ public class TemporalDataLoader : IDataSource<SparseArray<float>>
     public MultiYearTravelDemandModel Root;
 
     private SparseArray<float> _data;
+        private int _startMonth;
+    private int _endMonth;
 
     [SubModelInformation(Required = true, Description = "The location to load the temporal data from.")]
     public FileLocation LoadFrom;
@@ -76,20 +78,24 @@ public class TemporalDataLoader : IDataSource<SparseArray<float>>
 
     private SparseArray<float> CreateBlankSparseArrayOfMonthData()
     {
-        var StartYear = Root.StartYear;
-        var startMonth = (StartYear - 1) * 12;
-        var endMonth = (StartYear+1)*12  + Root.NumberOfYears * 12;
+        var startYear = Root.StartYear;
+        _startMonth = (startYear - 1) * 12;
+        _endMonth = _startMonth + Root.NumberOfYears * 12;
+
+        var arrayEndMonth = (startYear + 1) * 12 + Root.NumberOfYears * 12;
+
         return new SparseArray<float>(new SparseIndexing()
         {
-            Indexes = new SparseSet[] { new SparseSet() { Start = startMonth, Stop = endMonth } }
+            Indexes = new SparseSet[] { new SparseSet() { Start = _startMonth, Stop = arrayEndMonth } }
         });
     }
 
     public void LoadData()
     {
         var data = CreateBlankSparseArrayOfMonthData();
-        var startMonth = data.GetSparseIndex(0);
-        var endMonth = startMonth + Root.NumberOfYears * 12;
+        var startMonth = _startMonth;
+        var endMonth = _endMonth;
+
         var flatData = data.GetFlatData();
         using (CsvReader reader = new CsvReader(LoadFrom))
         {
