@@ -78,7 +78,7 @@ public class TemporalDataLoader : IDataSource<SparseArray<float>>
     {
         var StartYear = Root.StartYear;
         var startMonth = (StartYear - 1) * 12;
-        var endMonth = StartYear*12 + Root.NumberOfYears * 12;
+        var endMonth = (StartYear+1)*12  + Root.NumberOfYears * 12;
         return new SparseArray<float>(new SparseIndexing()
         {
             Indexes = new SparseSet[] { new SparseSet() { Start = startMonth, Stop = endMonth } }
