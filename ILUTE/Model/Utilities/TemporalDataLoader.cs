@@ -80,7 +80,7 @@ public class TemporalDataLoader : IDataSource<SparseArray<float>>
     {
         var startYear = Root.StartYear;
         _startMonth = (startYear - 1) * 12;
-        _endMonth = _startMonth + Root.NumberOfYears * 12;
+        _endMonth = (startYear+1)*12 + Root.NumberOfYears * 12;
 
         var arrayEndMonth = (startYear + 1) * 12 + Root.NumberOfYears * 12;
 
