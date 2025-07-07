@@ -49,7 +49,7 @@ public class TemporalDataLoader : IDataSource<SparseArray<float>>
     [RunParameter("Headers", false, "Does the data file contain headers?")]
     public bool Headers;
 
-    [RunParameter("Ignore Data Outside of Simulation", true, "Set this to true to ignore data outside of the model's time-frame. Data past the end of the simulation stops the read so it can be used if the period is extended.")]
+    [RunParameter("Ignore Data Outside of Simulation", false, "Set this to true to ignore data outside of the model's time-frame. Data past the end of the simulation stops the read so it can be used if the period is extended.")]
     public bool IgnoreDataOutsideOfSimulation;
 
     [RunParameter("Input Granularity", TemporalInputGranularity.Monthly, "Set to Monthly if the first column is months, Yearly if it is years.")]
