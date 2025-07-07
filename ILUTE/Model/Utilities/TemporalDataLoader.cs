@@ -27,8 +27,15 @@ using XTMF;
 
 namespace TMG.Ilute.Model.Utilities;
 
+public enum TemporalInputGranularity
+{
+    Monthly,
+    Yearly
+}
+
 [ModuleInformation(Description = @"This module is designed to load in information for ILUTE in the format (Year/(year*12+month)) TAB (Data).
     When using the module as a data source everything is converted into months.")]
+
 public class TemporalDataLoader : IDataSource<SparseArray<float>>
 {
     [RootModule]
@@ -45,9 +52,8 @@ public class TemporalDataLoader : IDataSource<SparseArray<float>>
     [RunParameter("Ignore Data Outside of Simulation", true, "Set this to true to ignore data outside of the model's time-frame. Data past the end of the simulation stops the read so it can be used if the period is extended.")]
     public bool IgnoreDataOutsideOfSimulation;
 
-
-    [RunParameter("Data", false, "Data is monthly")]
-    public bool MonthlyData;
+    [RunParameter("Input Granularity", TemporalInputGranularity.Monthly, "Set to Monthly if the first column is months, Yearly if it is years.")]
+    public TemporalInputGranularity InputGranularity;
 
     public string Name { get; set; }
 
@@ -88,20 +94,21 @@ public class TemporalDataLoader : IDataSource<SparseArray<float>>
             {
                 reader.LoadLine();
             }
+            bool anyData = false;
             while (reader.LoadLine(out columns))
             {
                 if (columns >= 2)
                 {
-                    bool year = false;
+                    bool year = InputGranularity == TemporalInputGranularity.Yearly;
                     int time;
                     float entry;
                     reader.Get(out time, 0);
                     reader.Get(out entry, 1);
-                    if (time < startMonth)
+                    if (year)
                     {
                         // convert year to month
                         time = time * 12;
-                        year = true;
+                       
                     }
                     if (time < startMonth || time >= endMonth)
                     {
@@ -128,7 +135,12 @@ public class TemporalDataLoader : IDataSource<SparseArray<float>>
                     {
                         flatData[time - startMonth] = entry;
                     }
+                    anyData = true;
                 }
+            }
+            if (!anyData)
+            {
+                throw new XTMFRuntimeException(this, $"While loading data in '{Name}' no valid entries were found in '{LoadFrom}'.");
             }
         }
         _data = data;
