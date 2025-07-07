@@ -109,5 +109,14 @@ namespace TMG.Ilute.Data
         {
             return Year.GetHashCode() + Month.GetHashCode();
         }
+
+        /// <summary>
+        /// Provides a string representation as "YYYY-MM" using a
+        /// one-based month for readability.
+        /// </summary>
+        public override string ToString()
+        {
+            return $"{Year:D4}-{(Month + 1):D2}";
+        }
     }
 }
