@@ -117,11 +117,6 @@ public class TemporalDataLoader : IDataSource<SparseArray<float>>
                     {
                         if(IgnoreDataOutsideOfSimulation)
                         {
-                            if (time >= endMonth)
-                            {
-                                break;
-                            }
-
                             continue;
                         }
                         throw new XTMFRuntimeException(this, $"While loading data in '{Name}' we came across a month = '{time}' that isn't in the model's time-frame.");
