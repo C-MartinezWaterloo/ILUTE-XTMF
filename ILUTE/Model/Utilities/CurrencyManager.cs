@@ -68,7 +68,7 @@ namespace TMG.Ilute.Model.Utilities
             return new Money(
     money.Amount * GetRate(date) / GetRate(money.WhenCreated),
     date
-); ;
+); 
         }
 
         /// <summary>
@@ -96,7 +96,6 @@ namespace TMG.Ilute.Model.Utilities
             }
 
             var rate = _inflationRateByMonth[date.Months];
-            Console.WriteLine($"inflationRateByMonth[{date.Months}] = {rate}");
             return rate;
         }
 
