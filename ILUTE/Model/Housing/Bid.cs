@@ -142,8 +142,9 @@ namespace TMG.Ilute.Model.Housing
             // Land use effects
             if (!_censusLandUse.TryGet(seller.Zone, out var sellerLU))
             {
-                // Default to zero-values when data is missing so bidding can continue
-                sellerLU = new LandUse(seller.Zone, 0, 0, 0, 0);
+                throw new XTMFRuntimeException(
+                    this,
+                    $"No land-use information found for zone {seller.Zone} when evaluating dwelling {seller.Id}.");
             }
 
             float openChange = sellerLU.Open > 0 ? (float)Math.Log(sellerLU.Open) : 0f;
