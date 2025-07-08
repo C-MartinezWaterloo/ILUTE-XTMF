@@ -40,8 +40,12 @@ namespace TMG.Ilute.Data.Spatial
         [SubModelInformation(Required = true, Description = "The zone system the OD data will be converted for")]
         public IDataSource<ZoneSystem> ConvertToZoneSystem;
 
+        // The original OD matrix to convert
+
         [SubModelInformation(Required = true, Description = "The data to convert")]
         public IDataSource<SparseTwinIndex<float>> Original;
+
+        // Gives a CSV mapping file path for zone correspondences
 
         [SubModelInformation(Required = true, Description = "The location to read the mapping file from")]
         public FileLocation MapFile;
