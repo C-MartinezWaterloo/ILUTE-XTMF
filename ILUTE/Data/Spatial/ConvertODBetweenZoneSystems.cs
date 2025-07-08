@@ -33,6 +33,7 @@ namespace TMG.Ilute.Data.Spatial
 
     public class ConvertODBetweenZoneSystems : IDataSource<SparseTwinIndex<float>>
     {
+        //OD: Origin‑Destination 
         [SubModelInformation(Required = true, Description = "The zone system the OD data was designed for")]
         public IDataSource<ZoneSystem> OriginalZoneSystem;
 
