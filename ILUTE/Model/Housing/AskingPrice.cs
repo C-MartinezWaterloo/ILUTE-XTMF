@@ -82,8 +82,8 @@ namespace TMG.Ilute.Model.Housing
             10000,   // square footage
             -1000,    // distance to subway
             -1000,    // distance to regional transit
-            500,      // residential land use share
-            -500     // commercial land use share
+            5000,      // residential land use share
+            -5000     // commercial land use share
         };
 
 
