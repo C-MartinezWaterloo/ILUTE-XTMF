@@ -44,6 +44,10 @@ namespace TMG.Ilute.Model.Housing
         public IDataSource<Repository<LandUse>> CensusLandUse;
         private Repository<LandUse> _censusLandUse;
 
+        [SubModelInformation(Required = true, Description = "The zone system the dwellings reference.")]
+        public IDataSource<ZoneSystem> ZoneSystem;
+        private ZoneSystem _zoneSystem;
+
         [SubModelInformation(Required = false, Description = "Currency conversion utilities.")]
         public IDataSource<CurrencyManager> CurrencyManager;
         private CurrencyManager _currencyManager;
@@ -73,6 +77,7 @@ namespace TMG.Ilute.Model.Housing
             try
             {
                 _censusLandUse = Repository.GetRepository(CensusLandUse);
+                _zoneSystem = Repository.GetRepository(ZoneSystem);
                 if (CurrencyManager != null)
                 {
                     _currencyManager = Repository.GetRepository(CurrencyManager);
@@ -140,11 +145,12 @@ namespace TMG.Ilute.Model.Housing
             var buyerDwelling = buyer.Dwelling;
 
             // Land use effects
-            if (!_censusLandUse.TryGet(seller.Zone, out var sellerLU))
+            int zoneNumber = _zoneSystem.ZoneNumber[seller.Zone];
+            if (!_censusLandUse.TryGet(zoneNumber, out var sellerLU))
             {
                 throw new XTMFRuntimeException(
                     this,
-                    $"No land-use information found for zone {seller.Zone} when evaluating dwelling {seller.Id}.");
+                    $"No land-use information found for zone {zoneNumber} when evaluating dwelling {seller.Id}.");
             }
 
             float openChange = sellerLU.Open > 0 ? (float)Math.Log(sellerLU.Open) : 0f;
@@ -190,6 +196,13 @@ namespace TMG.Ilute.Model.Housing
                 error = Name + ": missing households repository.";
                 return false;
             }
+
+            if (ZoneSystem == null)
+            {
+                error = Name + ": missing zone system.";
+                return false;
+            }
+
             return true;
         }
 
