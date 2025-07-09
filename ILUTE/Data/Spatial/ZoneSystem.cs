@@ -162,7 +162,12 @@ namespace TMG.Ilute.Data.Spatial
 
         public int GetFlatIndex(int zoneNumber)
         {
-            return Array.BinarySearch(ZoneNumber, zoneNumber);
+            var index = Array.BinarySearch(ZoneNumber, zoneNumber);
+            if (index < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(zoneNumber), $"Zone number {zoneNumber} not found from the initialized zone system.");
+            }
+            return index;
         }
     }
 }
