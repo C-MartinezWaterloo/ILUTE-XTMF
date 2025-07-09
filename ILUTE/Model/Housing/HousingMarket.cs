@@ -60,6 +60,8 @@ namespace TMG.Ilute.Model.Housing
         private Repository<FloatData> _distanceToRegionalTransit;
         private Repository<SaleRecord> _saleRecords;
 
+        private ZoneSystem _zoneSystem;
+
 
         [SubModelInformation(Required = true, Description = "The source of people in the model.")]
         public IDataSource<Repository<Person>> PersonRepository;
@@ -79,6 +81,8 @@ namespace TMG.Ilute.Model.Housing
         [SubModelInformation(Required = false, Description = "The average distance to Regional Transit by zone.")]
         public IDataSource<Repository<FloatData>> DistanceToRegionalTransit;
 
+        [SubModelInformation(Required = true, Description = "The zone system the dwellings reference.")]
+        public IDataSource<ZoneSystem> ZoneSystem;
 
         #region Parameters
         private const float RES_MOBILITY_SCALER = 0.5F;
@@ -244,9 +248,16 @@ namespace TMG.Ilute.Model.Housing
                 DistanceToRegionalTransit.LoadData();
             }
 
+            if (ZoneSystem != null && !ZoneSystem.Loaded)
+            {
+                ZoneSystem.LoadData();
+            }
+
             _landUse = Repository.GetRepository(LandUse);
             _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
             _distanceToRegionalTransit = Repository.GetRepository(DistanceToRegionalTransit);
+
+            _zoneSystem = Repository.GetRepository(ZoneSystem);
 
 
             if (SaleRecordRepository != null)
@@ -302,9 +313,15 @@ namespace TMG.Ilute.Model.Housing
                 DistanceToRegionalTransit.LoadData();
             }
 
+            if (ZoneSystem != null && !ZoneSystem.Loaded)
+            {
+                ZoneSystem.LoadData();
+            }
+
             _landUse = Repository.GetRepository(LandUse);
             _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
             _distanceToRegionalTransit = Repository.GetRepository(DistanceToRegionalTransit);
+            _zoneSystem = Repository.GetRepository(ZoneSystem);
 
             if (SaleRecordRepository != null)
             {
@@ -668,20 +685,22 @@ namespace TMG.Ilute.Model.Housing
 
             if (_saleRecords != null)
             {
+                int zoneNumber = _zoneSystem.ZoneNumber[seller.Zone];
                 float distSubway = 0f;
-                if (_distanceToSubway != null && _distanceToSubway.TryGet(seller.Zone, out var sub))
+                if (_distanceToSubway != null && _distanceToSubway.TryGet(zoneNumber, out var sub))
+
                 {
                     distSubway = sub.Data;
                 }
 
                 float distRegional = 0f;
-                if (_distanceToRegionalTransit != null && _distanceToRegionalTransit.TryGet(seller.Zone, out var rt))
+                if (_distanceToRegionalTransit != null && _distanceToRegionalTransit.TryGet(zoneNumber, out var rt))
                 {
                     distRegional = rt.Data;
                 }
 
                 float res = 0f, com = 0f;
-                if (_landUse != null && _landUse.TryGet(seller.Zone, out var lu))
+                if (_landUse != null && _landUse.TryGet(zoneNumber, out var lu))
                 {
                     res = lu.Residential;
                     com = lu.Commerce;
@@ -693,7 +712,7 @@ namespace TMG.Ilute.Model.Housing
                     Price = transactionPrice,
                     Rooms = seller.Rooms,
                     SquareFootage = seller.SquareFootage,
-                    Zone = seller.Zone,
+                    Zone = zoneNumber,
                     DistSubway = distSubway,
                     DistRegional = distRegional,
                     Residential = res,
@@ -822,6 +841,13 @@ namespace TMG.Ilute.Model.Housing
                 error = Name + ": missing dwelling repository.";
                 return false;
             }
+
+            if (ZoneSystem == null)
+            {
+                error = Name + ": missing zone system.";
+                return false;
+            }
+
             return base.RuntimeValidation(ref error);
         }
         #endregion
