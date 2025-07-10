@@ -19,13 +19,14 @@ namespace TMG.Ilute.Model.Demographic
         public float Progress => 0f;
         public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
-        [SubModelInformation(Required = true, Description = "Repository of persons.")]
-        public IDataSource<Repository<Person>> PersonRepository;
 
         [RunParameter("Seed", 123u, "Random seed for job creation")] public uint Seed;
         [RunParameter("Hiring Probability", 0.05f, "Chance an adult without a job gets hired each year")] public float HiringProbability;
         [RunParameter("Average Salary", 25000f, "Mean salary of new jobs")] public float AverageSalary;
         [RunParameter("Salary StdDev", 10000f, "Standard deviation for salary")] public float SalaryStdDev;
+
+        [SubModelInformation(Required = true, Description = "Repository of persons.")]
+        public IDataSource<Repository<Person>> PersonRepository;
 
         [SubModelInformation(Required = false, Description = "Optional repository of jobs.")]
         public IDataSource<Repository<Job>> JobRepository;
@@ -87,7 +88,9 @@ namespace TMG.Ilute.Model.Demographic
                     {
                         if (rand.NextFloat() < HiringProbability)
                         {
+                            // making a simple variation in salary.
                             float salary = AverageSalary + (float)(rand.InvStdNormalCDF() * SalaryStdDev);
+
                             if (salary < 0f) salary = AverageSalary;
                             var job = new Job
                             {
@@ -98,7 +101,9 @@ namespace TMG.Ilute.Model.Demographic
                                 IndustryClassification = IndustryClassification.NotApplicable
                             };
                             person.Jobs.Add(job);
+
                             person.LabourForceStatus = LabourForceStatus.Employed;
+
                             if (_jobRepo != null)
                             {
                                 _jobRepo.AddNew(job);
