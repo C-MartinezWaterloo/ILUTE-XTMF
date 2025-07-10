@@ -118,10 +118,17 @@ namespace TMG.Ilute.Model.Demographic
                 error = Name + ": missing persons repository.";
                 return false;
             }
-            if (JobRepository != null && !JobRepository.Loaded)
+            if (JobRepository != null)
             {
-                error = Name + ": job repository was not loaded.";
-                return false;
+                if (!JobRepository.RuntimeValidation(ref error))
+                {
+                    return false;
+                }
+                if (!JobRepository.Loaded)
+                {
+                    error = Name + ": job repository was not loaded.";
+                    return false;
+                }
             }
             return true;
         }
