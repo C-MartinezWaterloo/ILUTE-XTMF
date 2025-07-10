@@ -82,13 +82,15 @@ namespace TMG.Ilute.Model.Utilities
             IResource linked;
             if ((linked = Link(ResourceName)) == null)
             {
+                error = $"Resource '{ResourceName}' not found for {Name}.\"";
                 return false;
             }
             if (!linked.CheckResourceType<T>())
             {
-                error = "In '" + Name + "' the resource was not of type '" + typeof(T).GetType().Name 
+                error = "In '" + Name + "' the resource was not of type '" + typeof(T).GetType().Name
                     + "' instead of was of type '" + linked.GetResourceType().Name + "'!";
                 return false;
+                
             }
             Linked = linked;
             return true;
