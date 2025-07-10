@@ -76,6 +76,8 @@ namespace TMG.Ilute.Model.Demographic
         public void Execute(int currentYear)
         {
             var persons = Repository.GetRepository(PersonRepository);
+
+            // the is esentially going through the person who are >= 16, and adding a new job based on probability 
             int jobsCreated = 0;
             _random.ExecuteWithProvider(rand =>
             {
