@@ -19,6 +19,7 @@ namespace TMG.Ilute.Data.LabourForce
 
         private Repository<Job> _data;
 
+
         public Repository<Job> GiveData() => _data;
 
         public void LoadData()
@@ -26,8 +27,10 @@ namespace TMG.Ilute.Data.LabourForce
             try
             {
                 var repo = new Repository<Job>();
+
                 repo.LoadData();
                 _data = repo;
+
                 Loaded = true;
             }
             catch (Exception ex)
