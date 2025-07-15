@@ -77,13 +77,13 @@ namespace TMG.Ilute.Model.Housing
         // regression is run.
         private static readonly double[] DefaultBeta = new double[]
         {
-            300000,   // intercept
-            10000,    // rooms
+            100000,   // intercept
+            60000,    // rooms
             10000,   // square footage
             -1000,    // distance to subway
             -1000,    // distance to regional transit
-            5000,      // residential land use share
-            -5000     // commercial land use share
+            50,      // residential land use share
+            -100     // commercial land use share
         };
 
         private Dictionary<Dwelling.DwellingType, double[]> _betas =
