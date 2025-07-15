@@ -290,7 +290,7 @@ namespace TMG.Ilute.Model.Housing
 
             // Cholesky decomposition: A = L * L^T
 
-            // Why Cholesky? splits it into lower triangular for easier computation. Solving Ax = b is equivalent to solving Ly = b then Ltx = y.
+            // Why did I chose Cholesky? splits it into lower triangular for easier computation. Solving Ax = b is equivalent to solving Ly = b then Ltx = y.
 
 
             var L = new double[n, n];
