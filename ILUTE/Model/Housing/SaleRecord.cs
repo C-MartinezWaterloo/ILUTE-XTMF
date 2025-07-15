@@ -17,5 +17,7 @@ namespace TMG.Ilute.Data.Housing
         public float DistRegional { get; set; }
         public float Residential { get; set; }
         public float Commerce { get; set; }
+
+        public Dwelling.DwellingType Type { get; set; }
     }
 }

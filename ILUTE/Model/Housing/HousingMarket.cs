@@ -716,7 +716,8 @@ namespace TMG.Ilute.Model.Housing
                     DistSubway = distSubway,
                     DistRegional = distRegional,
                     Residential = res,
-                    Commerce = com
+                    Commerce = com,
+                    Type = seller.Type
                 };
                 _saleRecords.AddNew(rec);
             }
