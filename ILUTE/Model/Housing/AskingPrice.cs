@@ -75,7 +75,7 @@ namespace TMG.Ilute.Model.Housing
         // variables used when computing asking prices. These are simple default
         // values and will be overwritten once sale records accumulate and a
         // regression is run.
-        private double[] _beta = new double[]
+        private static readonly double[] DefaultBeta = new double[]
         {
             300000,   // intercept
             10000,    // rooms
@@ -85,6 +85,11 @@ namespace TMG.Ilute.Model.Housing
             5000,      // residential land use share
             -5000     // commercial land use share
         };
+
+        private Dictionary<Dwelling.DwellingType, double[]> _betas =
+            Enum.GetValues(typeof(Dwelling.DwellingType))
+                .Cast<Dwelling.DwellingType>()
+                .ToDictionary(t => t, t => (double[])DefaultBeta.Clone());
 
 
         private Date _currentDate;
@@ -243,35 +248,38 @@ namespace TMG.Ilute.Model.Housing
                 return;
             }
 
-            int p = _beta.Length;
-            var xtx = new double[p, p];
-            var xty = new double[p];
+            int p = DefaultBeta.Length;
 
-            foreach (var rec in records)
+            foreach (var group in records.GroupBy(r => r.Type))
             {
-                var x = new double[]
+                var xtx = new double[p, p];
+                var xty = new double[p];
+                foreach (var rec in group)
                 {
-                    1.0, // Intercept term
-                    rec.Rooms,
-                    rec.SquareFootage,
-                    rec.DistSubway,
-                    rec.DistRegional,
-                    rec.Residential,
-                    rec.Commerce
-                };
+                    var x = new double[]
+                         {
+                        1.0, // Intercept term
+                        rec.Rooms,
+                        rec.SquareFootage,
+                        rec.DistSubway,
+                        rec.DistRegional,
+                        rec.Residential,
+                        rec.Commerce
+                         };
 
-                AddScaledVector(xty, x, rec.Price);
-                AddOuterProduct(xtx, x, 1.0);
-            }
+                    AddScaledVector(xty, x, rec.Price);
+                    AddOuterProduct(xtx, x, 1.0);
+                }
 
-            _beta = Solve(xtx, xty);
+                _betas[group.Key] = Solve(xtx, xty);
 
-            // Log updated coefficients only at the end of each quarter
-            if ((now.Month + 1) % 3 == 0)
-            {
-                int quarter = now.Month / 3 + 1;
-                string coeffs = string.Join(", ", _beta.Select(v => v.ToString("F4")));
-                log?.WriteToLog($"Regression coefficients for {now.Year} Q{quarter}: {coeffs}");
+                // Log updated coefficients only at the end of each quarter
+                if ((now.Month + 1) % 3 == 0)
+                {
+                    int quarter = now.Month / 3 + 1;
+                    string coeffs = string.Join(", ", _betas[group.Key].Select(v => v.ToString("F4")));
+                    log?.WriteToLog($"Regression coefficients for {group.Key} {now.Year} Q{quarter}: {coeffs}");
+                }
             }
         }
 
@@ -308,7 +316,7 @@ namespace TMG.Ilute.Model.Housing
                     {
                         if (sum <= 0.0)
                         {
-                            return _beta; // Matrix not positive definite
+                            return (double[])DefaultBeta.Clone(); // Matrix not positive definite
                         }
                         L[i, j] = Math.Sqrt(sum);
                     }
@@ -461,9 +469,14 @@ namespace TMG.Ilute.Model.Housing
             };
 
             double price = 0.0;
-            for (int i = 0; i < _beta.Length && i < x.Length; i++)
+            if (!_betas.TryGetValue(seller.Type, out var beta))
             {
-                price += _beta[i] * x[i];
+                beta = DefaultBeta;
+            }
+
+            for (int i = 0; i < beta.Length && i < x.Length; i++)
+            {
+                price += beta[i] * x[i];
             }
 
             return ((float)price, 0f);
