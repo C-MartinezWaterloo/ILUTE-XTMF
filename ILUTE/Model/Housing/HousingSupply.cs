@@ -71,6 +71,7 @@ namespace TMG.Ilute.Model.Housing
             _builtThisYear = 0;
         }
 
+
         public void Execute(int currentYear)
         {
             if (NewDwellingsPerYear <= 0)
