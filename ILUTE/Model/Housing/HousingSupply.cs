@@ -83,7 +83,7 @@ namespace TMG.Ilute.Model.Housing
 
             _rand.ExecuteWithProvider(rand =>
             {
-                float baseValue = 87000f + 50000f * Math.Max(0, currentYear - 1986);
+                float baseValue = 97000f + 50000f * Math.Max(0, currentYear - 1986);
                 for (int i = 0; i < NewDwellingsPerYear; i++)
                 {
                     var typeRoll = rand.NextFloat();
