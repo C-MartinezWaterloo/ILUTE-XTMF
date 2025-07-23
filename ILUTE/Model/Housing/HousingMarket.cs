@@ -198,24 +198,31 @@ namespace TMG.Ilute.Model.Housing
 
             // compute and log the average personal income for this year
             float totalIncome = 0f;
+            int adultCount = 0;
             foreach (var person in persons)
             {
-                float personIncome = 0f;
-                foreach (var job in person.Jobs)
+                if (person.Age > 18)
                 {
-                    var salary = job.Salary.Amount;
-                    if (_currencyManager != null)
+                    adultCount++;
+                    float personIncome = 0f;
+                    foreach (var job in person.Jobs)
                     {
-                        if (salary == 0f && job.Salary.Amount > 0f)
+                        var salary = job.Salary.Amount;
+                        if (_currencyManager != null)
                         {
-                            throw new XTMFRuntimeException(this, "currency manager is not working");
+
+                            if (salary == 0f && job.Salary.Amount > 0f)
+                            {
+                                throw new XTMFRuntimeException(this, "currency manager is not working");
+                            }
                         }
+                        personIncome += salary;
                     }
-                    personIncome += salary;
+                    personIncome += personIncome;
                 }
-                totalIncome += personIncome;
+                
             }
-            var averageIncome = persons.Count > 0 ? totalIncome / persons.Count : 0f;
+            var averageIncome = adultCount > 0 ? totalIncome / adultCount : 0f;
             log.WriteToLog($"Average personal income in {currentYear}: {averageIncome:F2}");
 
 
