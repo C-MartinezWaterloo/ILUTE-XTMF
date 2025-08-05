@@ -33,6 +33,11 @@ namespace TMG.Ilute.Data.LabourForce
 
         public int WorkExperienceRequired { get; set; }
 
+        /// <summary>
+        /// The flat index into the zone system where this job is located.
+        /// </summary>
+        public int Zone { get; set; }
+
         public Person Owner { get; set; }
 
         public OccupationClassification OccupationClassification { get; set; }
