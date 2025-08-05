@@ -484,7 +484,8 @@ Household:
                                 StartDate = new Date(InitialYear - 1, 0),
                                 Salary = new Money(totincp, new Date(InitialYear, 0)),
                                 OccupationClassification = (OccupationClassification)occ81p,
-                                IndustryClassification = (IndustryClassification)ind80p
+                                IndustryClassification = (IndustryClassification)ind80p,
+                                Zone = p.Family?.Household?.Dwelling?.Zone ?? 0
                             };
                             p.Jobs.Add(job);
                         }
