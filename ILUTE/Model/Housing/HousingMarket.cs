@@ -28,7 +28,6 @@ using TMG.Ilute.Data;
 using TMG.Ilute.Data.Demographics;
 using TMG.Ilute.Data.Housing;
 using TMG.Ilute.Data.Spatial;
-using TMG.Ilute.Model.Demographic;
 using TMG.Ilute.Model.Utilities;
 using XTMF;
 
@@ -48,9 +47,6 @@ namespace TMG.Ilute.Model.Housing
         // Optional module that adds new dwellings to the repository each year
         [SubModelInformation(Required = false, Description = "Generates new dwellings each year before the market runs.")]
         public HousingSupply SupplyModule;
-
-        [SubModelInformation(Required = true, Description = "Initializes the base-year population from CSV files.")]
-        public InitializePopulation PopulationInitializer;
 
         [SubModelInformation(Required = true, Description = "A source of dwellings in the model.")]
         public IDataSource<Repository<Dwelling>> DwellingRepository;
@@ -129,7 +125,6 @@ namespace TMG.Ilute.Model.Housing
         private long _boughtDwellings;
         private double _totalSalePrice;
         private Date _currentTime;
-        private bool _populationInitialized;
 
         private ConcurrentDictionary<long, Household> _remainingHouseholds = new ConcurrentDictionary<long, Household>();
         private ConcurrentDictionary<long, Dwelling> _remainingDwellings = new ConcurrentDictionary<long, Dwelling>();
@@ -334,12 +329,6 @@ namespace TMG.Ilute.Model.Housing
             _distanceToSubway = Repository.GetRepository(DistanceToSubwayByZone);
             _distanceToRegionalTransit = Repository.GetRepository(DistanceToRegionalTransit);
             _zoneSystem = Repository.GetRepository(ZoneSystem);
-
-            if (!_populationInitialized)
-            {
-                PopulationInitializer.Start();
-                _populationInitialized = true;
-            }
 
             if (SaleRecordRepository != null)
             {
